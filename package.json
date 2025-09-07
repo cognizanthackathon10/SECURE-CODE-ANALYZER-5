@@ -1,0 +1,27 @@
+{
+  "name": "secure-code-analyzer",
+  "version": "1.0.0",
+  "description": "A lightweight static analyzer that detects insecure coding patterns in **PHP** and **JavaScript** with **actionable fixes**, **severity ranking**, and **JSON/HTML reports**.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@clerk/clerk-react": "^5.46.1",
+    "@clerk/nextjs": "^6.31.9",
+    "esprima": "^4.0.1",
+    "jspdf": "^3.0.2",
+    "jspdf-autotable": "^5.0.2",
+    "jszip": "^3.10.1",
+    "mongodb": "^6.19.0",
+    "mongoose": "^8.18.0",
+    "php-parser": "^3.2.5",
+    "react-icons": "^5.5.0"
+  }
+}

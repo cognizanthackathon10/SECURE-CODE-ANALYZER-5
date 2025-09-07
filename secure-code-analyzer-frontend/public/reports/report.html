@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Secure Code Analyzer Report</title>
+<style>
+body { font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 16px; }
+.downloads button { background:#1976d2; color:white; border:none; padding:8px 12px; margin-right:8px; border-radius:4px; cursor:pointer; }
+.downloads button:hover { background:#1259a7; }
+table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+th, td { border: 1px solid #ddd; padding: 8px; font-size: 14px; }
+th { background: #f7f7f7; position: sticky; top: 0; }
+tr.row-critical { background: #e6ccff; }
+tr.row-high { background: #fdecea; }
+tr.row-medium { background: #fff8e1; }
+tr.row-low { background: #e8f4fd; }
+.sev-critical { background: #d1b3ff; color: #3d0066; }
+.sev-high { background: #f8d7da; color: #721c24; }
+.sev-medium { background: #fff3cd; color: #856404; }
+.sev-low { background: #d1ecf1; color: #0c5460; }
+.tag { display:inline-block; padding:2px 6px; border-radius: 3px; font-size: 12px; margin-top:2px; }
+.owasp { background:#ffe6e6; color:#900; }
+.cwe { background:#e6f0ff; color:#004080; }
+.controls { display:flex; gap:12px; align-items:center; margin:10px 0; flex-wrap: wrap; }
+</style>
+<script>
+function filterTable() {
+  const severity = document.getElementById('sevFilter').value;
+  const owasp = document.getElementById('owaspFilter').value;
+  const cwe = document.getElementById('cweFilter').value;
+  const fileType = document.getElementById('fileTypeFilter').value;
+  const q = document.getElementById('searchBox').value.toLowerCase();
+
+  const tbody = document.getElementById('tbody');
+  Array.from(tbody.rows).forEach(r => {
+    const sev = r.querySelector('.sev').textContent.trim().toUpperCase();
+    const text = r.textContent.toLowerCase();
+    const ruleText = r.querySelector('.rule-cell').textContent;
+    const fileName = r.querySelector('td').textContent.toLowerCase();
+
+    const okSev = (severity === 'ALL' || sev === severity);
+    const okOwasp = (owasp === 'ALL' || ruleText.includes(owasp));
+    const okCwe = (cwe === 'ALL' || ruleText.includes(cwe));
+    const okFileType = (fileType === 'ALL' || fileName.endsWith('.' + fileType));
+    const okSearch = text.includes(q);
+
+    r.style.display = (okSev && okOwasp && okCwe && okFileType && okSearch) ? '' : 'none';
+  });
+}
+
+function downloadContent(filename, content, type) {
+  const blob = new Blob([content], {type});
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+function downloadJSON() {
+  const content = `[
+  {
+    "id": "JS-EVAL-001",
+    "file": "sample_vuln_js.js",
+    "line": 222,
+    "severity": "HIGH",
+    "category": "Dangerous Function",
+    "message": "Use of eval() can lead to code injection.",
+    "suggestion": "Avoid eval(); use JSON.parse or pre-defined function maps.",
+    "owasp": "A03:2021-Injection",
+    "cwe": "",
+    "snippet": "Insecure \\"deserialization\\" via eval (CWE-94 / CWE-502)",
+    "detected_by": "Regex",
+    "lines": [
+      222
+    ],
+    "occurrences": 1
+  },
+  {
+    "id": "JS-EVAL-001",
+    "file": "sample_vuln_js.js",
+    "line": 229,
+    "severity": "CRITICAL",
+    "category": "Code Injection",
+    "message": "Use of eval() can lead to code execution.",
+    "suggestion": "Avoid eval(); use safe parsers or functions.",
+    "owasp": "A03:2021-Injection",
+    "cwe": "",
+    "snippet": "const obj = eval('(' + payload + ')'); // dangerous",
+    "detected_by": "Context-AST",
+    "lines": [
+      229
+    ],
+    "occurrences": 1
+  },
+  {
+    "id": "js-child-process-exec",
+    "file": "sample_vuln_js.js",
+    "line": 141,
+    "severity": "CRITICAL",
+    "category": "Code-Execution",
+    "message": "Use of child_process.exec() with user input may allow remote command execution.",
+    "suggestion": "Use safer alternatives like execFile with strict input validation.",
+    "owasp": "A03:2021-Injection",
+    "cwe": "",
+    "snippet": "child_process.exec(cmd, { timeout: 2000 }, (err, stdout, stderr) => {",
+    "detected_by": "Regex",
+    "lines": [
+      141
+    ],
+    "occurrences": 1
+  },
+  {
+    "id": "JS-WEAK-HASH",
+    "file": "sample_vuln_js.js",
+    "line": 246,
+    "severity": "HIGH",
+    "category": "Cryptography",
+    "message": "Weak hashing algorithm used.",
+    "suggestion": "Use SHA-256 or stronger.",
+    "owasp": "A02:2021-CryptographicFailures,A03:2021-Injection",
+    "cwe": "CWE-327,CWE-328",
+    "snippet": "const weakHash = crypto.createHash('md5').update(password).digest('hex'); // weak: MD5",
+    "detected_by": "AST",
+    "lines": [
+      246,
+      256
+    ],
+    "occurrences": 2
+  },
+  {
+    "id": "JS-TIMEOUT-AST-001",
+    "file": "sample_vuln_js.js",
+    "line": 317,
+    "severity": "HIGH",
+    "category": "Dangerous Function",
+    "message": "setTimeout called with a string \\u2192 dynamic code execution like eval().",
+    "suggestion": "Pass a function reference instead of a string.",
+    "owasp": "A03:2021-Injection,A05:2021-SecurityMisconfiguration,A09:2021-SecurityLoggingandMonitoringFailures,A10:2021-Logging&MonitoringFailures",
+    "cwe": "CWE-200",
+    "snippet": "console.log('Vulnerable Express app running on http://0.0.0.0:3000');",
+    "detected_by": "AST",
+    "lines": [
+      317,
+      305,
+      308,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      36,
+      37,
+      71,
+      93,
+      107,
+      117,
+      123,
+      127,
+      131,
+      138,
+      152,
+      166,
+      174,
+      175,
+      176,
+      178,
+      180,
+      181,
+      183,
+      184,
+      192,
+      209,
+      211,
+      225,
+      240,
+      242,
+      253,
+      259,
+      263,
+      265,
+      272,
+      281,
+      291,
+      294
+    ],
+    "occurrences": 45
+  },
+  {
+    "id": "js-insecure-jwt-decode",
+    "file": "sample_vuln_js.js",
+    "line": 196,
+    "severity": "HIGH",
+    "category": "Authentication",
+    "message": "Using jwt.decode() without verifying the signature is insecure.",
+    "suggestion": "Use jwt.verify() instead of jwt.decode() for authentication flows.",
+    "owasp": "A02:2021-CryptographicFailures,A07:2021-IdentificationandAuthenticationFailures",
+    "cwe": "",
+    "snippet": "const decoded = jwt.decode(token, { complete: true }); // does NOT verify signature",
+    "detected_by": "Heuristic",
+    "lines": [
+      196
+    ],
+    "occurrences": 1
+  },
+  {
+    "id": "JS-UNSAFE-FILE-UPLOAD-STRICT",
+    "file": "sample_vuln_js.js",
+    "line": 165,
+    "severity": "HIGH",
+    "category": "Unsafe File Upload",
+    "message": "File upload using multer with no fileFilter \\u2192 Unsafe file upload.",
+    "suggestion": "Use multer fileFilter to restrict uploads to allowed MIME types.",
+    "owasp": "",
+    "cwe": "",
+    "snippet": "const upload = multer({ dest: 'uploads/' }); // no file type checking",
+    "detected_by": "Regex",
+    "lines": [
+      165
+    ],
+    "occurrences": 1
+  },
+  {
+    "id": "GEN-HEUR-003",
+    "file": "sample_vuln_js.js",
+    "line": 14,
+    "severity": "HIGH",
+    "category": "Secrets",
+    "message": "Possible hardcoded secret or credential detected.",
+    "suggestion": "Move secrets to environment variables or a secure vault.",
+    "owasp": "A02:2021-CryptographicFailures",
+    "cwe": "",
+    "snippet": "* - Hardcoded credentials and secrets (CWE-798)",
+    "detected_by": "Heuristic",
+    "lines": [
+      14,
+      35,
+      45,
+      46,
+      54,
+      57,
+      82,
+      190,
+      193,
+      197,
+      198,
+      238,
+      243,
+      244,
+      247,
+      254,
+      255,
+      257,
+      261,
+      297,
+      298
+    ],
+    "occurrences": 21
+  },
+  {
+    "id": "GEN-HEUR-007",
+    "file": "sample_vuln_js.js",
+    "line": 303,
+    "severity": "LOW",
+    "category": "Suspicious Comments",
+    "message": "Suspicious comment keyword found.",
+    "suggestion": "Review and resolve temporary or insecure code.",
+    "owasp": "A05:2021-SecurityMisconfiguration,A10:2021-Logging&MonitoringFailures",
+    "cwe": "",
+    "snippet": "Insecure temporary file writing (CWE-377)",
+    "detected_by": "Heuristic",
+    "lines": [
+      303
+    ],
+    "occurrences": 1
+  },
+  {
+    "id": "JS-TEMP-FILE-002",
+    "file": "sample_vuln_js.js",
+    "line": 309,
+    "severity": "HIGH",
+    "category": "Insecure Temporary File",
+    "message": "Temporary file written to predictable path \\u2192 possible data leakage or overwrite.",
+    "suggestion": "Use secure random filenames or temp directories.",
+    "owasp": "A05:2021-SecurityMisconfiguration,A10:2021-Logging&MonitoringFailures",
+    "cwe": "",
+    "snippet": "fs.writeFileSync(p, 'temporary data');",
+    "detected_by": "Context-AST",
+    "lines": [
+      309
+    ],
+    "occurrences": 1
+  },
+  {
+    "id": "GEN-HEUR-016",
+    "file": "sample_vuln_js.js",
+    "line": 307,
+    "severity": "LOW",
+    "category": "Temporary Files",
+    "message": "Use of temporary files detected.",
+    "suggestion": "Ensure temporary files are not world-accessible.",
+    "owasp": "A05:2021-SecurityMisconfiguration",
+    "cwe": "",
+    "snippet": "// predictable tmp path, no safe handling",
+    "detected_by": "Heuristic",
+    "lines": [
+      307
+    ],
+    "occurrences": 1
+  },
+  {
+    "id": "JS-NO-RATE-LIMITING-001",
+    "file": "sample_vuln_js.js",
+    "line": 40,
+    "severity": "HIGH",
+    "category": "No Rate Limiting",
+    "message": "No rate limiting middleware detected \\u2192 Potential DoS risk.",
+    "suggestion": "Add rate limiting middleware like express-rate-limit to prevent abuse.",
+    "owasp": "",
+    "cwe": "",
+    "snippet": "app.use(bodyParser.json());",
+    "detected_by": "Heuristic",
+    "lines": [
+      40,
+      41,
+      49
+    ],
+    "occurrences": 3
+  }
+]`;
+  downloadContent("report.json", content, "application/json");
+}
+function downloadHTML() {
+  const content = document.documentElement.outerHTML;
+  downloadContent("report.html", content, "text/html");
+}
+</script>
+</head>
+<body>
+<h1>Secure Code Analyzer Report</h1>
+<small>Generated at: 2025-09-07 16:48:16 </small>
+
+<div class="downloads">
+  <button onclick="downloadJSON()">⬇ Download JSON</button>
+  <button onclick="downloadHTML()">⬇ Download HTML</button>
+</div>
+
+<div class="controls">
+  <label>Severity:
+    <select id="sevFilter" onchange="filterTable()">
+      <option value="ALL" selected>All</option>
+      <option value="CRITICAL">Critical</option>
+      <option value="HIGH">High</option>
+      <option value="MEDIUM">Medium</option>
+      <option value="LOW">Low</option>
+    </select>
+  </label>
+  <label>OWASP:
+    <select id='owaspFilter' onchange='filterTable()'>
+      <option value='ALL' selected>All</option>
+      <option value='A02:2021-CryptographicFailures'>A02:2021-CryptographicFailures</option><option value='A03:2021-Injection'>A03:2021-Injection</option><option value='A05:2021-SecurityMisconfiguration'>A05:2021-SecurityMisconfiguration</option><option value='A07:2021-IdentificationandAuthenticationFailures'>A07:2021-IdentificationandAuthenticationFailures</option><option value='A09:2021-SecurityLoggingandMonitoringFailures'>A09:2021-SecurityLoggingandMonitoringFailures</option><option value='A10:2021-Logging&MonitoringFailures'>A10:2021-Logging&MonitoringFailures</option>
+    </select>
+  </label>
+  <label>CWE:
+    <select id='cweFilter' onchange='filterTable()'>
+      <option value='ALL' selected>All</option>
+      <option value='CWE-200'>CWE-200</option><option value='CWE-327'>CWE-327</option><option value='CWE-328'>CWE-328</option>
+    </select>
+  </label>
+  <label>File Type:
+    <select id='fileTypeFilter' onchange='filterTable()'>
+      <option value='ALL' selected>All</option>
+      <option value='js'>JavaScript</option>
+    </select>
+  </label>
+  <label>Search:
+    <input id="searchBox" type="text" placeholder="Search issues..." oninput="filterTable()"/>
+  </label>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>File</th><th>Line</th><th>Severity</th>
+      <th>Category</th><th>Rule / Mapping</th>
+      <th>Message</th><th>Snippet</th>
+      <th>Suggestion</th><th>Detected By</th>
+    </tr>
+  </thead>
+  <tbody id="tbody">
+    
+          <tr class="row-high">
+            <td>sample_vuln_js.js</td>
+            <td style="text-align:right">222</td>
+            <td><span class="sev sev-high">HIGH</span></td>
+            <td>Dangerous Function</td>
+            <td class="rule-cell">JS-EVAL-001<br><span class='tag owasp'>A03:2021-Injection</span></td>
+            <td>Use of eval() can lead to code injection</td>
+            <td><code>Insecure &quot;deserialization&quot; via eval (CWE-94 / CWE-502)</code></td>
+            <td>Avoid eval(); use JSON; parse or pre-defined function maps</td>
+            <td>Regex</td>
+          </tr>
+        
+          <tr class="row-critical">
+            <td>sample_vuln_js.js</td>
+            <td style="text-align:right">229</td>
+            <td><span class="sev sev-critical">CRITICAL</span></td>
+            <td>Code Injection</td>
+            <td class="rule-cell">JS-EVAL-001<br><span class='tag owasp'>A03:2021-Injection</span></td>
+            <td>Use of eval() can lead to code execution</td>
+            <td><code>const obj = eval(&#x27;(&#x27; + payload + &#x27;)&#x27;); // dangerous</code></td>
+            <td>Avoid eval(); use safe parsers or functions</td>
+            <td>Context-AST</td>
+          </tr>
+        
+          <tr class="row-critical">
+            <td>sample_vuln_js.js</td>
+            <td style="text-align:right">141</td>
+            <td><span class="sev sev-critical">CRITICAL</span></td>
+            <td>Code-Execution</td>
+            <td class="rule-cell">js-child-process-exec<br><span class='tag owasp'>A03:2021-Injection</span></td>
+            <td>Use of child_process; exec() with user input may allow remote command execution</td>
+            <td><code>child_process.exec(cmd, { timeout: 2000 }, (err, stdout, stderr) =&gt; {</code></td>
+            <td>Use safer alternatives like execFile with strict input validation</td>
+            <td>Regex</td>
+          </tr>
+        
+          <tr class="row-high">
+            <td>sample_vuln_js.js</td>
+            <td style="text-align:right"><span title="Also at lines: 246, 256">246</span></td>
+            <td><span class="sev sev-high">HIGH</span></td>
+            <td>Cryptography (x2)</td>
+            <td class="rule-cell">JS-WEAK-HASH<br><span class='tag owasp'>A02:2021-CryptographicFailures</span> <span class='tag owasp'>A03:2021-Injection</span> <span class='tag cwe'>CWE-327</span> <span class='tag cwe'>CWE-328</span></td>
+            <td>Weak hashing algorithm used</td>
+            <td><code>const weakHash = crypto.createHash(&#x27;md5&#x27;).update(password).digest(&#x27;hex&#x27;); // weak: MD5</code></td>
+            <td>Use SHA-256 or stronger</td>
+            <td>AST</td>
+          </tr>
+        
+          <tr class="row-high">
+            <td>sample_vuln_js.js</td>
+            <td style="text-align:right"><span title="Also at lines: 317, 305, 308, 27, 28, 29, 30, 31, 32, 33, 34, 36, 37, 71, 93, 107, 117, 123, 127, 131, 138, 152, 166, 174, 175, 176, 178, 180, 181, 183, 184, 192, 209, 211, 225, 240, 242, 253, 259, 263, 265, 272, 281, 291, 294">317</span></td>
+            <td><span class="sev sev-high">HIGH</span></td>
+            <td>Dangerous Function (x45)</td>
+            <td class="rule-cell">JS-TIMEOUT-AST-001<br><span class='tag owasp'>A03:2021-Injection</span> <span class='tag owasp'>A05:2021-SecurityMisconfiguration</span> <span class='tag owasp'>A09:2021-SecurityLoggingandMonitoringFailures</span> <span class='tag owasp'>A10:2021-Logging&amp;amp;MonitoringFailures</span> <span class='tag cwe'>CWE-200</span></td>
+            <td>setTimeout called with a string → dynamic code execution like eval()</td>
+            <td><code>console.log(&#x27;Vulnerable Express app running on http://0.0.0.0:3000&#x27;);</code></td>
+            <td>Pass a function reference instead of a string</td>
+            <td>AST</td>
+          </tr>
+        
+          <tr class="row-high">
+            <td>sample_vuln_js.js</td>
+            <td style="text-align:right">196</td>
+            <td><span class="sev sev-high">HIGH</span></td>
+            <td>Authentication</td>
+            <td class="rule-cell">js-insecure-jwt-decode<br><span class='tag owasp'>A02:2021-CryptographicFailures</span> <span class='tag owasp'>A07:2021-IdentificationandAuthenticationFailures</span></td>
+            <td>Using jwt; decode() without verifying the signature is insecure</td>
+            <td><code>const decoded = jwt.decode(token, { complete: true }); // does NOT verify signature</code></td>
+            <td>Use jwt; verify() instead of jwt; decode() for authentication flows</td>
+            <td>Heuristic</td>
+          </tr>
+        
+          <tr class="row-high">
+            <td>sample_vuln_js.js</td>
+            <td style="text-align:right">165</td>
+            <td><span class="sev sev-high">HIGH</span></td>
+            <td>Unsafe File Upload</td>
+            <td class="rule-cell">JS-UNSAFE-FILE-UPLOAD-STRICT</td>
+            <td>File upload using multer with no fileFilter → Unsafe file upload</td>
+            <td><code>const upload = multer({ dest: &#x27;uploads/&#x27; }); // no file type checking</code></td>
+            <td>Use multer fileFilter to restrict uploads to allowed MIME types</td>
+            <td>Regex</td>
+          </tr>
+        
+          <tr class="row-high">
+            <td>sample_vuln_js.js</td>
+            <td style="text-align:right"><span title="Also at lines: 14, 35, 45, 46, 54, 57, 82, 190, 193, 197, 198, 238, 243, 244, 247, 254, 255, 257, 261, 297, 298">14</span></td>
+            <td><span class="sev sev-high">HIGH</span></td>
+            <td>Secrets (x21)</td>
+            <td class="rule-cell">GEN-HEUR-003<br><span class='tag owasp'>A02:2021-CryptographicFailures</span></td>
+            <td>Possible hardcoded secret or credential detected</td>
+            <td><code>* - Hardcoded credentials and secrets (CWE-798)</code></td>
+            <td>Move secrets to environment variables or a secure vault</td>
+            <td>Heuristic</td>
+          </tr>
+        
+          <tr class="row-low">
+            <td>sample_vuln_js.js</td>
+            <td style="text-align:right">303</td>
+            <td><span class="sev sev-low">LOW</span></td>
+            <td>Suspicious Comments</td>
+            <td class="rule-cell">GEN-HEUR-007<br><span class='tag owasp'>A05:2021-SecurityMisconfiguration</span> <span class='tag owasp'>A10:2021-Logging&amp;amp;MonitoringFailures</span></td>
+            <td>Suspicious comment keyword found</td>
+            <td><code>Insecure temporary file writing (CWE-377)</code></td>
+            <td>Review and resolve temporary or insecure code</td>
+            <td>Heuristic</td>
+          </tr>
+        
+          <tr class="row-high">
+            <td>sample_vuln_js.js</td>
+            <td style="text-align:right">309</td>
+            <td><span class="sev sev-high">HIGH</span></td>
+            <td>Insecure Temporary File</td>
+            <td class="rule-cell">JS-TEMP-FILE-002<br><span class='tag owasp'>A05:2021-SecurityMisconfiguration</span> <span class='tag owasp'>A10:2021-Logging&amp;amp;MonitoringFailures</span></td>
+            <td>Temporary file written to predictable path → possible data leakage or overwrite</td>
+            <td><code>fs.writeFileSync(p, &#x27;temporary data&#x27;);</code></td>
+            <td>Use secure random filenames or temp directories</td>
+            <td>Context-AST</td>
+          </tr>
+        
+          <tr class="row-low">
+            <td>sample_vuln_js.js</td>
+            <td style="text-align:right">307</td>
+            <td><span class="sev sev-low">LOW</span></td>
+            <td>Temporary Files</td>
+            <td class="rule-cell">GEN-HEUR-016<br><span class='tag owasp'>A05:2021-SecurityMisconfiguration</span></td>
+            <td>Use of temporary files detected</td>
+            <td><code>// predictable tmp path, no safe handling</code></td>
+            <td>Ensure temporary files are not world-accessible</td>
+            <td>Heuristic</td>
+          </tr>
+        
+          <tr class="row-high">
+            <td>sample_vuln_js.js</td>
+            <td style="text-align:right"><span title="Also at lines: 40, 41, 49">40</span></td>
+            <td><span class="sev sev-high">HIGH</span></td>
+            <td>No Rate Limiting (x3)</td>
+            <td class="rule-cell">JS-NO-RATE-LIMITING-001</td>
+            <td>No rate limiting middleware detected → Potential DoS risk</td>
+            <td><code>app.use(bodyParser.json());</code></td>
+            <td>Add rate limiting middleware like express-rate-limit to prevent abuse</td>
+            <td>Heuristic</td>
+          </tr>
+        
+  </tbody>
+</table>
+</body>
+</html>
