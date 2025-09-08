@@ -1,19 +1,10 @@
 <?php
-/**
- * ADDITIONAL VULNERABLE PHP CODE EXAMPLES - FOR SECURITY TESTING ONLY
- * This file contains 20 additional security vulnerabilities for testing purposes.
- * DO NOT USE IN PRODUCTION!
- */
-
-// 1. Open Redirect without Validation
 function openRedirect() {
     $redirect = $_GET['redirect'];
-    // No validation of redirect URL
     header("Location: " . $redirect);
     exit;
 }
 
-// 2. LDAP Injection
 function ldapInjection() {
     $username = $_GET['username'];
     $password = $_GET['password'];
@@ -21,70 +12,56 @@ function ldapInjection() {
     $ldapconn = ldap_connect("ldap.example.com");
     $ldapbind = ldap_bind($ldapconn, "cn=root,dc=example,dc=com", "password");
     
-    // LDAP injection vulnerability
     $filter = "(uid=" . $username . ")";
     $result = ldap_search($ldapconn, "dc=example,dc=com", $filter);
 }
 
-// 3. XPath Injection
 function xpathInjection() {
     $name = $_GET['name'];
     
     $xml = simplexml_load_file('users.xml');
-    // XPath injection vulnerability
     $result = $xml->xpath("//user[name='" . $name . "']");
     
     return $result;
 }
 
-// 4. HTTP Response Splitting
 function httpResponseSplitting() {
     $filename = $_GET['file'];
-    // HTTP response splitting vulnerability
     header("Content-Disposition: attachment; filename=" . $filename);
     readfile("uploads/" . $filename);
 }
 
-// 5. Timing Attack (String Comparison)
 function timingAttack() {
     $password = $_POST['password'];
-    $stored_hash = "5f4dcc3b5aa765d61d8327deb882cf99"; // md5 of "password"
+    $stored_hash = "5f4dcc3b5aa765d61d8327deb882cf99";
     
-    // Vulnerable to timing attack
     if (md5($password) === $stored_hash) {
         return true;
     }
     return false;
 }
 
-// 6. Insecure Cookie Handling
 function insecureCookies() {
-    // Session cookie without secure and httponly flags
     session_set_cookie_params(0, '/', '', false, false);
     session_start();
     
-    // Setting sensitive data in cookies without encryption
     setcookie("user_data", base64_encode(serialize($_SESSION)), time()+3600, "/", "", false, false);
 }
 
-// 7. Unsafe use of globals
 function unsafeGlobals() {
-    // Registering globals (deprecated but still a vulnerability if enabled)
     if (!ini_get('register_globals')) {
         foreach ($_REQUEST as $key => $value) {
-            $$key = $value; // Creates variables from request parameters
+            $$key = $value;
         }
     }
     
-    echo "Welcome, $username"; // $username comes directly from request
+    echo "Welcome, $username";
 }
 
-// 8. Reflection Injection
 function reflectionInjection() {
     $class = $_GET['class'];
     $method = $_GET['method'];
     
-    // Reflection injection vulnerability
     $reflectionClass = new ReflectionClass($class);
     $instance = $reflectionClass->newInstance();
     
@@ -92,11 +69,9 @@ function reflectionInjection() {
     return $reflectionMethod->invoke($instance);
 }
 
-// 9. Unsafe Regular Expression (ReDoS)
 function redosVulnerability() {
     $input = $_GET['input'];
     
-    // Vulnerable regex pattern (exponential backtracking)
     $pattern = '/(a+)+$/';
     
     if (preg_match($pattern, $input)) {
@@ -105,82 +80,65 @@ function redosVulnerability() {
     return "No match";
 }
 
-// 10. Type Juggling Vulnerability
 function typeJuggling() {
     $password = $_POST['password'];
-    $stored_hash = "0e12345"; // Example hash that evaluates to 0 in scientific notation
+    $stored_hash = "0e12345";
     
-    // Type juggling vulnerability (== instead of ===)
     if (md5($password) == $stored_hash) {
         return true;
     }
     return false;
 }
 
-// 11. Unsafe use of exec() with user input
 function execInjection() {
     $command = $_GET['command'];
     
-    // Unsafe execution of user input
     exec("ls -la " . $command, $output);
     
     return $output;
 }
 
-// 12. XML Entity Expansion (Billion Laughs Attack)
 function billionLaughs() {
     $xml = $_POST['xml'];
     
-    // Vulnerable to Billion Laughs attack
     $doc = new DOMDocument();
     $doc->loadXML($xml, LIBXML_NOENT);
     
     return $doc->saveXML();
 }
 
-// 13. Unsafe use of preg_replace with /e modifier
 function pregReplaceEval() {
     $template = $_GET['template'];
     $data = array('name' => $_GET['name']);
     
-    // Dangerous preg_replace with /e modifier (deprecated in PHP 5.5, removed in 7.0)
     $result = preg_replace('/\{(\w+)\}/e', '$data["$1"]', $template);
     
     return $result;
 }
 
-// 14. Unsafe use of assert()
 function assertInjection() {
     $code = $_GET['code'];
     
-    // assert() evaluates PHP code - dangerous with user input
     assert($code);
 }
 
-// 15. Insecure Randomness for Security Purpose
 function insecureRandom() {
-    // Using insecure random function for cryptographic purpose
-    $token = mt_rand(); // Not cryptographically secure
+    $token = mt_rand();
     
-    // Using rand() for password reset token
     $reset_token = rand(100000, 999999);
     
     return array('token' => $token, 'reset_token' => $reset_token);
 }
 
-// 16. Unsafe use of extract() with EXTR_SKIP
 function extractSkipVulnerability() {
-    // EXTR_SKIP doesn't protect against existing variables
     extract($_GET, EXTR_SKIP);
     
     echo "Welcome, $username";
 }
 
-// 17. Directory Listing Enabled
 function directoryListing() {
     $dir = $_GET['dir'];
     
-    // Display directory contents without authentication
     $files = scandir($dir);
     
     foreach ($files as $file) {
@@ -188,23 +146,19 @@ function directoryListing() {
     }
 }
 
-// 18. Unsafe use of ${} variable variables
 function variableVariableInjection() {
     $var = $_GET['var'];
     $value = $_GET['value'];
     
-    // Unsafe variable variable usage
     ${$var} = $value;
     
     echo "Variable $$var set to: " . ${$var};
 }
 
-// 19. Password in URL (GET parameter)
 function passwordInUrl() {
     $username = $_GET['username'];
-    $password = $_GET['password']; // Password in URL - visible in logs
+    $password = $_GET['password'];
     
-    // Authentication logic
     if (authenticateUser($username, $password)) {
         return "Login successful";
     }
@@ -212,21 +166,17 @@ function passwordInUrl() {
 }
 
 function authenticateUser($user, $pass) {
-    // Mock authentication
     return ($user === "admin" && $pass === "secret");
 }
 
-// 20. Unsafe use of shell_exec with backticks
 function backtickInjection() {
     $input = $_GET['input'];
     
-    // Backtick operator executes shell commands
     $output = `ping -c 4 $input`;
     
     return $output;
 }
 
-// Test function to demonstrate vulnerabilities
 function testAdditionalVulnerabilities() {
     if (isset($_GET['test'])) {
         $test = $_GET['test'];
@@ -295,7 +245,6 @@ function testAdditionalVulnerabilities() {
     }
 }
 
-// Execute test if requested
 testAdditionalVulnerabilities();
 ?>
 

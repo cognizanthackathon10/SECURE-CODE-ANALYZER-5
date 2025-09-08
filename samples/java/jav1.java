@@ -20,45 +20,44 @@ public class jav1 extends JFrame {
         setSize(700, 500);
         setLayout(new BorderLayout());
         
-        // Input panel
+
         JPanel inputPanel = new JPanel(new GridLayout(5, 2, 5, 5));
         inputPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         
-        // 1. Command injection vulnerability
+
         inputPanel.add(new JLabel("Command (try 'calc' or 'echo hello'):"));
         cmdField = new JTextField();
         inputPanel.add(cmdField);
-        
-        // 2. SQL injection vulnerability
+
         inputPanel.add(new JLabel("Username (try 'admin' OR '1'='1'):"));
         userField = new JTextField();
         inputPanel.add(userField);
         
-        // 3. XSS vulnerability
+
         inputPanel.add(new JLabel("Name (try <script>alert('test')</script>):"));
         nameField = new JTextField();
         inputPanel.add(nameField);
         
-        // 4. Insecure deserialization
+
         inputPanel.add(new JLabel("Serialized Data:"));
         dataField = new JTextField();
         inputPanel.add(dataField);
         
-        // Execute button
+
         JButton executeBtn = new JButton("Execute Vulnerable Code");
         executeBtn.addActionListener(e -> executeVulnerabilities());
         inputPanel.add(executeBtn);
         
         add(inputPanel, BorderLayout.NORTH);
         
-        // Output area
+
         outputArea = new JTextArea();
         outputArea.setEditable(false);
         outputArea.setBackground(new Color(255, 250, 240));
         outputArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
         add(new JScrollPane(outputArea), BorderLayout.CENTER);
         
-        // Info panel
+
         JLabel warningLabel = new JLabel("⚠️ WARNING: This demonstrates security vulnerabilities - do not use in production!");
         warningLabel.setForeground(Color.RED);
         warningLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -72,7 +71,7 @@ public class jav1 extends JFrame {
         outputArea.setText("");
         outputArea.setForeground(Color.BLACK);
         
-        // 1. Command injection (Runtime.exec with user input)
+
         String cmd = cmdField.getText();
         if (!cmd.isEmpty()) {
             outputArea.append("1. COMMAND INJECTION VULNERABILITY:\n");
@@ -90,7 +89,7 @@ public class jav1 extends JFrame {
             outputArea.append("----------------------------------------\n");
         }
         
-        // 2. SQL injection (concatenating user input into query)
+
         String user = userField.getText();
         if (!user.isEmpty()) {
             outputArea.append("2. SQL INJECTION VULNERABILITY:\n");
@@ -101,7 +100,7 @@ public class jav1 extends JFrame {
             outputArea.append("----------------------------------------\n");
         }
         
-        // 3. XSS (reflecting user input without sanitization)
+
         String name = nameField.getText();
         if (!name.isEmpty()) {
             outputArea.append("3. XSS VULNERABILITY:\n");
@@ -111,7 +110,7 @@ public class jav1 extends JFrame {
             outputArea.append("----------------------------------------\n");
         }
         
-        // 4. Insecure deserialization
+
         String data = dataField.getText();
         if (!data.isEmpty()) {
             outputArea.append("4. INSECURE DESERIALIZATION VULNERABILITY:\n");
@@ -149,7 +148,7 @@ public class jav1 extends JFrame {
         });
     }
     
-    // Simple serializable class for demonstration
+
     @SuppressWarnings("unused")
     static class TestData implements Serializable {
         private final String data;

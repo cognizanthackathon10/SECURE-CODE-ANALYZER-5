@@ -2,20 +2,20 @@
 $mysqli = new mysqli("localhost","root","","db");
 
 $name = $_GET['name'];
-$sql = "SELECT * FROM users WHERE name = '" . $name . "'"; // SQLi
+$sql = "SELECT * FROM users WHERE name = '" . $name . "'"; 
 $result = $mysqli->query($sql);
 
-echo $_GET['html']; // XSS
+echo $_GET['html']; 
 
-$hash = md5($_GET['p']); // weak crypto
+$hash = md5($_GET['p']); 
 
 if(isset($_GET['cmd'])){
-    system("ls " . $_GET['cmd']); // command injection
+    system("ls " . $_GET['cmd']); 
 }
 
 try {
     throw new Exception("Boom");
 } catch (Exception $e) {
-    var_dump($e); // error leak
+    var_dump($e); 
 }
 ?>

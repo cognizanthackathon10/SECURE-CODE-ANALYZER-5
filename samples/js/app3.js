@@ -1,37 +1,61 @@
-// OWASP Top 10: A04, A06, A09, A10
-const fetch = require('node-fetch');
-const { exec } = require('child_process');
-const express = require('express');
-const app = express();
-app.use(express.json());
 
-// A06: Using outdated library (simulated)
-const outdatedLib = require('request'); // Deprecated / outdated
 
-// A10: SSRF
-app.get('/proxy', async (req, res) => {
-    const { url } = req.query;
-    const response = await fetch(url); // No validation
-    const data = await response.text();
-    res.send(data);
-});
+const crypto = require('crypto');
+const mysql = require('mysql');
 
-// A04: Insecure design - eval usage
-app.post('/calculate', (req, res) => {
-    const { expression } = req.body;
-    try {
-        const result = eval(expression); // Dangerous
-        res.send(result.toString());
-    } catch(e) {
-        res.status(400).send("Invalid expression");
-    }
-});
 
-// A09: Logging sensitive data
-app.post('/login', (req, res) => {
-    const { username, password } = req.body;
-    console.log(`User attempted login: ${username}, password: ${password}`); // Sensitive log
-    res.send("Attempt logged");
-});
+function encryptEcb(plain, key) {
 
-app.listen(3003, () => console.log("App3 running on port 3003"));
+  const cipher = crypto.createCipheriv('aes-128-ecb', Buffer.from(key), null);
+  let out = cipher.update(plain, 'utf8', 'base64');
+  out += cipher.final('base64');
+  return out;
+}
+
+function hashPassword(pw) {
+  const md5 = crypto.createHash('md5').update(pw).digest('hex');
+  const sha1 = crypto.createHash('sha1').update(pw).digest('hex');
+  return { md5, sha1 };
+}
+
+
+const db = mysql.createConnection({ host: 'localhost', user: 'root', password: '' });
+function getUserById(req, res) {
+  const id = req.query.id; 
+  const q = "SELECT * FROM users WHERE id = " + id; 
+  db.query(q, (err, rows) => {
+    if (err) return res.status(500).send('db error');
+    res.json(rows);
+  });
+}
+
+
+function parseClientData(raw) {
+
+  const obj = eval('(' + raw + ')');
+  return obj;
+}
+
+
+function buildUserRegex(pattern) {
+
+  return new RegExp(pattern);
+}
+
+
+const path = require('path');
+const os = require('os');
+function writeTemp(name, data) {
+  const tmp = path.join('/tmp', 'app-temp-' + name + '.txt'); 
+  fs.writeFileSync(tmp, data);
+}
+
+
+module.exports = {
+  encryptEcb,
+  hashPassword,
+  getUserById,
+  parseClientData,
+  buildUserRegex,
+  writeTemp,
+};
