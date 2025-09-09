@@ -1,1 +1,1900 @@
-[]
+[
+  {
+    "id": "JAVA-RUNTIME-EXEC-REGEX",
+    "file": "samples/java\\jav1.java",
+    "line": 80,
+    "severity": "CRITICAL",
+    "category": "Command Injection",
+    "message": "Runtime.getRuntime().exec() detected.",
+    "suggestion": "Avoid direct exec(); use ProcessBuilder with validated args.",
+    "owasp": "A03:2021-Injection",
+    "cwe": "CWE-78",
+    "snippet": "Process p = Runtime.getRuntime().exec(cmd);",
+    "detected_by": "Regex",
+    "lines": [
+      80
+    ]
+  },
+  {
+    "id": "JAVA-STACKTRACE",
+    "file": "samples/java\\jav1.java",
+    "line": 143,
+    "severity": "MEDIUM",
+    "category": "Information Disclosure",
+    "message": "Stack trace leakage.",
+    "suggestion": "Log securely without exposing stack traces.",
+    "owasp": "A09:2021-SecurityLoggingandMonitoringFailures",
+    "cwe": "CWE-209",
+    "snippet": "e.printStackTrace();",
+    "detected_by": "Regex",
+    "lines": [
+      143
+    ]
+  },
+  {
+    "id": "JAVA-SQL-HEURISTIC",
+    "file": "samples/java\\jav1.java",
+    "line": 97,
+    "severity": "HIGH",
+    "category": "Sql Injection",
+    "message": "Concatenating SQL queries with user input is dangerous.",
+    "suggestion": "Use PreparedStatement with bind parameters.",
+    "owasp": "A03:2021-Injection",
+    "cwe": "CWE-89",
+    "snippet": "String sql = \"SELECT * FROM users WHERE username = '\" + user + \"'\";",
+    "detected_by": "Heuristic",
+    "lines": [
+      97
+    ]
+  },
+  {
+    "id": "JAVA-DESERIALIZE-AST",
+    "file": "samples/java\\jav1.java",
+    "line": 122,
+    "severity": "HIGH",
+    "category": "Insecure Deserialization",
+    "message": "ObjectInputStream.readObject() detected.",
+    "suggestion": "Avoid deserialization of untrusted data.",
+    "owasp": "A08:2021-SoftwareandDataIntegrityFailures",
+    "cwe": "CWE-502",
+    "snippet": "Object obj = ois.readObject();",
+    "detected_by": "AST",
+    "lines": [
+      122
+    ]
+  },
+  {
+    "id": "JAVA-RUNTIME-EXEC-REGEX",
+    "file": "samples/java\\MoreVulnsDemo.java",
+    "line": 20,
+    "severity": "CRITICAL",
+    "category": "Command Injection",
+    "message": "Runtime.getRuntime().exec() detected.",
+    "suggestion": "Avoid direct exec(); use ProcessBuilder with validated args.",
+    "owasp": "A03:2021-Injection",
+    "cwe": "CWE-78",
+    "snippet": "Runtime.getRuntime().exec(cmd);",
+    "detected_by": "Regex",
+    "lines": [
+      20
+    ]
+  },
+  {
+    "id": "JAVA-HARDCODED-API-KEY",
+    "file": "samples/java\\MoreVulnsDemo.java",
+    "line": 11,
+    "severity": "CRITICAL",
+    "category": "Secrets Management",
+    "message": "Hardcoded API key, token, or secret detected in Java source code.",
+    "suggestion": "Do not hardcode API keys/secrets. Use environment variables, secure config files, or a secrets manager (e.g., Vault, AWS Secrets Manager).",
+    "owasp": "A05:2021-SecurityMisconfiguration,A07:2021-IdentificationandAuthenticationFailures",
+    "cwe": "CWE-798",
+    "snippet": "private static final String API_KEY = \"sk_test_1234567890\";",
+    "detected_by": "Regex",
+    "lines": [
+      11
+    ]
+  },
+  {
+    "id": "JAVA-INSECURE-RANDOMNESS",
+    "file": "samples/java\\MoreVulnsDemo.java",
+    "line": 14,
+    "severity": "HIGH",
+    "category": "Cryptographic Failures",
+    "message": "Insecure Randomness: java.util.Random used for security-sensitive tokens. It is predictable.",
+    "suggestion": "Use java.security.SecureRandom for generating cryptographically secure tokens.",
+    "owasp": "A02:2021-CryptographicFailures",
+    "cwe": "CWE-338",
+    "snippet": "private java.util.Random rand = new java.util.Random();",
+    "detected_by": "Heuristic",
+    "lines": [
+      14
+    ]
+  },
+  {
+    "id": "JS-CHILD-PROCESS-EXEC",
+    "file": "samples/js\\app.js",
+    "line": 43,
+    "severity": "CRITICAL",
+    "category": "Command Execution",
+    "message": "Use of child_process.exec() with user input may allow remote command execution.",
+    "suggestion": "Use safer alternatives like execFile with strict input validation.",
+    "owasp": "A03:2021-Injection",
+    "cwe": "CWE-78",
+    "snippet": "child_process.exec(cmd, (err, stdout, stderr) => {",
+    "detected_by": "Regex+AST(Taint)",
+    "lines": [
+      43
+    ]
+  },
+  {
+    "id": "JS-SETTIMEOUT-TAINT-001",
+    "file": "samples/js\\app.js",
+    "line": 34,
+    "severity": "CRITICAL",
+    "category": "Code Injection",
+    "message": "setTimeout() with user-controlled string \u2192 Remote Code Execution.",
+    "suggestion": "Always pass function references or arrow functions, never strings.",
+    "owasp": "A03:2021-Injection,A09:2021-SecurityLoggingandMonitoringFailures",
+    "cwe": "CWE-200,CWE-532,CWE-94",
+    "snippet": "console.log('password:', req.body.password);",
+    "detected_by": "Context-AST",
+    "lines": [
+      34,
+      83,
+      33,
+      40,
+      50,
+      60
+    ]
+  },
+  {
+    "id": "JS-CONSOLE-001",
+    "file": "samples/js\\app.js",
+    "line": 35,
+    "severity": "LOW",
+    "category": "Information Disclosure",
+    "message": "Console logging detected (informational).",
+    "suggestion": "Remove console statements in production.",
+    "owasp": "A09:2021-SecurityLoggingandMonitoringFailures",
+    "cwe": "CWE-200",
+    "snippet": "console.error(new Error('test').stack);",
+    "detected_by": "Regex",
+    "lines": [
+      35
+    ]
+  },
+  {
+    "id": "JS-SETTIMEOUT-AST-001",
+    "file": "samples/js\\app.js",
+    "line": 90,
+    "severity": "HIGH",
+    "category": "Dangerous Function",
+    "message": "setTimeout called with a string \u2192 dynamic code execution like eval().",
+    "suggestion": "Always pass a function reference or arrow function instead of a string.",
+    "owasp": "A03:2021-Injection,A09:2021-SecurityLoggingandMonitoringFailures",
+    "cwe": "CWE-200,CWE-94",
+    "snippet": "app.listen(3000, () => console.log('vuln_server running on 3000'));",
+    "detected_by": "AST",
+    "lines": [
+      90,
+      76,
+      80,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      14,
+      26,
+      28,
+      29,
+      36,
+      44,
+      54,
+      62,
+      64,
+      65,
+      66,
+      71,
+      72,
+      87
+    ]
+  },
+  {
+    "id": "JS-INSECURE-FILE-PERMISSIONS-001",
+    "file": "samples/js\\app.js",
+    "line": 79,
+    "severity": "HIGH",
+    "category": "Access Control",
+    "message": "Insecure file permissions detected (0o777 \u2192 world-readable and writable).",
+    "suggestion": "Avoid using 0o777. Apply least privilege file permissions such as 0o600 or 0o640.",
+    "owasp": "A05:2021-SecurityMisconfiguration",
+    "cwe": "CWE-732",
+    "snippet": "fs.chmod(tmpPath, 0o777);",
+    "detected_by": "Regex",
+    "lines": [
+      79
+    ]
+  },
+  {
+    "id": "JS-DEBUG-MODE-001",
+    "file": "samples/js\\app.js",
+    "line": 15,
+    "severity": "HIGH",
+    "category": "Configuration",
+    "message": "Express debug error handler enabled \u2192 should not be used in production.",
+    "suggestion": "Disable errorhandler() in production; use proper logging and generic error responses instead.",
+    "owasp": "A05:2021-SecurityMisconfiguration,A06:2021-SecurityMisconfiguration",
+    "cwe": "CWE-489,CWE-770",
+    "snippet": "app.use(errorhandler());",
+    "detected_by": "Heuristic",
+    "lines": [
+      15
+    ]
+  },
+  {
+    "id": "JS-UNSAFE-FILE-UPLOAD-STRICT",
+    "file": "samples/js\\app.js",
+    "line": 70,
+    "severity": "HIGH",
+    "category": "Unsafe File Upload",
+    "message": "File upload using multer with no fileFilter \u2192 Unsafe file upload.",
+    "suggestion": "Use multer fileFilter to restrict uploads to allowed MIME types.",
+    "owasp": "A05:2021-SecurityMisconfiguration",
+    "cwe": "CWE-377,CWE-434",
+    "snippet": "const upload = multer({ dest: '/tmp/uploads' });",
+    "detected_by": "Heuristic",
+    "lines": [
+      70
+    ]
+  },
+  {
+    "id": "JS-CSP-DISABLED-001",
+    "file": "samples/js\\app.js",
+    "line": 18,
+    "severity": "HIGH",
+    "category": "Csp Disabled",
+    "message": "Content Security Policy explicitly disabled \u2192 Increases XSS risk.",
+    "suggestion": "Enable CSP via helmet with proper directives.",
+    "owasp": "A05:2021-SecurityMisconfiguration,A06:2021-SecurityMisconfiguration",
+    "cwe": "CWE-693,CWE-770",
+    "snippet": "app.use(helmet({ contentSecurityPolicy: false }));",
+    "detected_by": "Heuristic",
+    "lines": [
+      18
+    ]
+  },
+  {
+    "id": "GEN-HEUR-016",
+    "file": "samples/js\\app.js",
+    "line": 77,
+    "severity": "LOW",
+    "category": "Temporary Files",
+    "message": "Use of temporary file/directory detected.",
+    "suggestion": "Ensure temporary files are created securely and not world-accessible.",
+    "owasp": "A05:2021-SecurityMisconfiguration",
+    "cwe": "CWE-377",
+    "snippet": "const tmpPath = '/tmp/mytempfile.txt';",
+    "detected_by": "Heuristic",
+    "lines": [
+      77
+    ]
+  },
+  {
+    "id": "JS-NO-RATE-LIMITING-001",
+    "file": "samples/js\\app.js",
+    "line": 12,
+    "severity": "HIGH",
+    "category": "Lack Of Rate Limiting",
+    "message": "No rate limiting middleware detected \u2192 Potential brute force or DoS risk.",
+    "suggestion": "Add express-rate-limit or equivalent middleware to enforce rate limiting.",
+    "owasp": "A06:2021-SecurityMisconfiguration",
+    "cwe": "CWE-770",
+    "snippet": "app.use(bodyParser.json());",
+    "detected_by": "Heuristic",
+    "lines": [
+      12,
+      20
+    ]
+  },
+  {
+    "id": "JS-PATH-TRAVERSAL",
+    "file": "samples/js\\app.js",
+    "line": 53,
+    "severity": "CRITICAL",
+    "category": "Path Traversal",
+    "message": "Untrusted input flows into file system operations \u2192 possible path traversal.",
+    "suggestion": "Validate file paths against a strict allowlist, use path.resolve()/normalize(), and block '..' sequences to prevent directory traversal.",
+    "owasp": "A01:2021-BrokenAccessControl,A05:2021-SecurityMisconfiguration",
+    "cwe": "CWE-22",
+    "snippet": "fs.readFile(file, 'utf8', (err, data) => {",
+    "detected_by": "Regex+AST(Taint)",
+    "lines": [
+      53
+    ]
+  },
+  {
+    "id": "JS-UNSAFE-FUNC-001",
+    "file": "samples/js\\app2.js",
+    "line": 20,
+    "severity": "CRITICAL",
+    "category": "Dangerous Function",
+    "message": "Use of eval() can lead to code execution.",
+    "suggestion": "Avoid eval(); use JSON.parse or safe function mapping.",
+    "owasp": "A03:2021-Injection",
+    "cwe": "CWE-470,CWE-94,CWE-95",
+    "snippet": "eval(code);",
+    "detected_by": "AST+AST(Taint)",
+    "lines": [
+      20
+    ]
+  },
+  {
+    "id": "JS-XSS-001",
+    "file": "samples/js\\app2.js",
+    "line": 8,
+    "severity": "CRITICAL",
+    "category": "Cross-Site Scripting (Xss)",
+    "message": "Potential DOM XSS: User input written directly to the DOM without sanitization.",
+    "suggestion": "Avoid using document.write/innerHTML/outerHTML with untrusted input. Use textContent, setAttribute, or sanitize input with libraries like DOMPurify.",
+    "owasp": "A03:2021-Injection",
+    "cwe": "CWE-79,CWE-94",
+    "snippet": "document.getElementById('out').innerHTML = msg;",
+    "detected_by": "Context-AST",
+    "lines": [
+      8,
+      13
+    ]
+  },
+  {
+    "id": "JS-HARDCODED-CREDS-001",
+    "file": "samples/js\\app2.js",
+    "line": 25,
+    "severity": "CRITICAL",
+    "category": "Authentication",
+    "message": "Hardcoded credentials or secrets detected in JavaScript code.",
+    "suggestion": "Do not hardcode usernames, passwords, API keys, or tokens in client-side or server-side code. Use secure environment variables, configuration files, or a secrets manager.",
+    "owasp": "A02:2021-CryptographicFailures,A03:2021-Injection",
+    "cwe": "CWE-798,CWE-922,CWE-94",
+    "snippet": "localStorage.setItem('token', token);",
+    "detected_by": "Context-AST",
+    "lines": [
+      25,
+      39,
+      40
+    ]
+  },
+  {
+    "id": "JS-SETTIMEOUT-AST-001",
+    "file": "samples/js\\app2.js",
+    "line": 7,
+    "severity": "HIGH",
+    "category": "Dangerous Function",
+    "message": "setTimeout called with a string \u2192 dynamic code execution like eval().",
+    "suggestion": "Always pass a function reference or arrow function instead of a string.",
+    "owasp": "A03:2021-Injection",
+    "cwe": "CWE-94",
+    "snippet": "const msg = params.get('msg') || 'hello';",
+    "detected_by": "AST",
+    "lines": [
+      7,
+      12,
+      31,
+      45,
+      47
+    ]
+  },
+  {
+    "id": "JS-WINDOW-LOCATION-ASSIGN",
+    "file": "samples/js\\app2.js",
+    "line": 33,
+    "severity": "HIGH",
+    "category": "Open Redirect",
+    "message": "Assignment to window.location with unsanitized input can lead to open redirect attacks.",
+    "suggestion": "Validate destination URLs or use a whitelist.",
+    "owasp": "A01:2021-BrokenAccessControl",
+    "cwe": "",
+    "snippet": "window.location = dest;",
+    "detected_by": "Context-AST",
+    "lines": [
+      33
+    ]
+  },
+  {
+    "id": "JS-UNSAFE-FUNC-001",
+    "file": "samples/js\\app3.js",
+    "line": 35,
+    "severity": "CRITICAL",
+    "category": "Dangerous Function",
+    "message": "Use of eval() can lead to code execution.",
+    "suggestion": "Avoid eval(); use JSON.parse or safe function mapping.",
+    "owasp": "A03:2021-Injection",
+    "cwe": "CWE-94,CWE-95",
+    "snippet": "const obj = eval('(' + raw + ')');",
+    "detected_by": "AST",
+    "lines": [
+      35
+    ]
+  },
+  {
+    "id": "JS-WEAK-HASH",
+    "file": "samples/js\\app3.js",
+    "line": 16,
+    "severity": "HIGH",
+    "category": "Cryptography",
+    "message": "Weak hashing algorithm (MD5/SHA1) used.",
+    "suggestion": "Use SHA-256, SHA-512, or SHA-3. For passwords, use bcrypt, scrypt, or Argon2 instead of general-purpose hashes.",
+    "owasp": "A02:2021-CryptographicFailures,A03:2021-Injection",
+    "cwe": "CWE-327,CWE-328,CWE-94",
+    "snippet": "const md5 = crypto.createHash('md5').update(pw).digest('hex');",
+    "detected_by": "AST",
+    "lines": [
+      16,
+      17
+    ]
+  },
+  {
+    "id": "JS-INSECURE-CRYPTO-ECB-001",
+    "file": "samples/js\\app3.js",
+    "line": 9,
+    "severity": "CRITICAL",
+    "category": "Cryptography",
+    "message": "Insecure AES mode: ECB detected \u2192 deterministic encryption leaks patterns.",
+    "suggestion": "Use AES-GCM (preferred) or AES-CBC with random IVs.",
+    "owasp": "A02:2021-CryptographicFailures,A03:2021-Injection",
+    "cwe": "CWE-327,CWE-94",
+    "snippet": "const cipher = crypto.createCipheriv('aes-128-ecb', Buffer.from(key), null);",
+    "detected_by": "AST",
+    "lines": [
+      9
+    ]
+  },
+  {
+    "id": "JS-HARDCODED-CREDS-001",
+    "file": "samples/js\\app3.js",
+    "line": 22,
+    "severity": "CRITICAL",
+    "category": "Authentication",
+    "message": "Hardcoded credentials or secrets detected in JavaScript code.",
+    "suggestion": "Do not hardcode usernames, passwords, API keys, or tokens in client-side or server-side code. Use secure environment variables, configuration files, or a secrets manager.",
+    "owasp": "A02:2021-CryptographicFailures",
+    "cwe": "CWE-798",
+    "snippet": "const db = mysql.createConnection({ host: 'localhost', user: 'root', password: '' });",
+    "detected_by": "Regex",
+    "lines": [
+      22
+    ]
+  },
+  {
+    "id": "JS-SETTIMEOUT-AST-001",
+    "file": "samples/js\\app3.js",
+    "line": 49,
+    "severity": "HIGH",
+    "category": "Dangerous Function",
+    "message": "setTimeout called with a string \u2192 dynamic code execution like eval().",
+    "suggestion": "Always pass a function reference or arrow function instead of a string.",
+    "owasp": "A03:2021-Injection,A05:2021-SecurityMisconfiguration",
+    "cwe": "CWE-377,CWE-94",
+    "snippet": "const tmp = path.join('/tmp', 'app-temp-' + name + '.txt');",
+    "detected_by": "AST",
+    "lines": [
+      49,
+      3,
+      4,
+      11,
+      27,
+      46,
+      47
+    ]
+  },
+  {
+    "id": "GEN-HEUR-016",
+    "file": "samples/js\\app3.js",
+    "line": 50,
+    "severity": "LOW",
+    "category": "Temporary Files",
+    "message": "Use of temporary file/directory detected.",
+    "suggestion": "Ensure temporary files are created securely and not world-accessible.",
+    "owasp": "A05:2021-SecurityMisconfiguration",
+    "cwe": "CWE-377",
+    "snippet": "fs.writeFileSync(tmp, data);",
+    "detected_by": "Heuristic",
+    "lines": [
+      50
+    ]
+  },
+  {
+    "id": "PHP-SYSTEM-EXEC-001",
+    "file": "samples/php\\index.php",
+    "line": 12,
+    "severity": "HIGH",
+    "category": "Command Execution",
+    "message": "Command execution can lead to injection if args are tainted.",
+    "suggestion": "Avoid shell execution; use built-in APIs and strict validation.",
+    "owasp": "A03:2021-Injection",
+    "cwe": "",
+    "snippet": "if(isset($_GET['cmd'])){",
+    "detected_by": "Regex",
+    "lines": [
+      12
+    ]
+  },
+  {
+    "id": "PHP-XSS",
+    "file": "samples/php\\index.php",
+    "line": 8,
+    "severity": "CRITICAL",
+    "category": "Injection",
+    "message": "Reflected XSS detected: Echoing unsanitized user input.",
+    "suggestion": "Use htmlspecialchars() or templating libraries that escape output by default.",
+    "owasp": "A03:2021-Injection",
+    "cwe": "CWE-79",
+    "snippet": "echo $_GET['html'];",
+    "detected_by": "Regex",
+    "lines": [
+      8
+    ]
+  },
+  {
+    "id": "PHP-WEAK-HASH",
+    "file": "samples/php\\index.php",
+    "line": 10,
+    "severity": "HIGH",
+    "category": "Cryptography",
+    "message": "Weak hashing algorithm used.",
+    "suggestion": "Use password_hash() with bcrypt or Argon2.",
+    "owasp": "A02:2021-CryptographicFailures",
+    "cwe": "CWE-327,CWE-328",
+    "snippet": "$hash = md5($_GET['p']);",
+    "detected_by": "Heuristic",
+    "lines": [
+      10
+    ]
+  },
+  {
+    "id": "PHP-INFO-DISCLOSURE",
+    "file": "samples/php\\index.php",
+    "line": 19,
+    "severity": "MEDIUM",
+    "category": "Information Disclosure",
+    "message": "Sensitive error information disclosure.",
+    "suggestion": "Disable debug info in production.",
+    "owasp": "A09:2021-SecurityLoggingandMonitoringFailures,A10:2021-Logging&MonitoringFailures",
+    "cwe": "CWE-209",
+    "snippet": "var_dump($e);",
+    "detected_by": "Heuristic",
+    "lines": [
+      19
+    ]
+  },
+  {
+    "id": "PHP-NO-DB-ERROR-HANDLING-001",
+    "file": "samples/php\\index.php",
+    "line": 2,
+    "severity": "MEDIUM",
+    "category": "Error Handling",
+    "message": "Database connection created without proper error handling.",
+    "suggestion": "Always wrap database connections in try/catch and log errors securely.",
+    "owasp": "A09:2021-SecurityLoggingandMonitoringFailures",
+    "cwe": "CWE-252",
+    "snippet": "$mysqli = new mysqli(\"localhost\",\"root\",\"\",\"db\");",
+    "detected_by": "Heuristic",
+    "lines": [
+      2
+    ]
+  },
+  {
+    "id": "PHP-SYSTEM-AST-001",
+    "file": "samples/php\\index.php",
+    "line": 13,
+    "severity": "CRITICAL",
+    "category": "Command Injection",
+    "message": "system() called with user input \u2192 Command Injection.",
+    "suggestion": "Avoid system(); use built-in APIs.",
+    "owasp": "A03:2021-Injection",
+    "cwe": "",
+    "snippet": "system(\"ls \" . $_GET['cmd']);",
+    "detected_by": "Context-AST",
+    "lines": [
+      13
+    ]
+  },
+  {
+    "id": "PHP-EVAL-001",
+    "file": "samples/php\\index2.php",
+    "line": 4,
+    "severity": "HIGH",
+    "category": "Dangerous Function",
+    "message": "Use of eval() can lead to code injection.",
+    "suggestion": "Avoid eval(); use safer alternatives.",
+    "owasp": "A03:2021-Injection",
+    "cwe": "",
+    "snippet": "eval($code);",
+    "detected_by": "Regex",
+    "lines": [
+      4
+    ]
+  },
+  {
+    "id": "PHP-SYSTEM-EXEC-001",
+    "file": "samples/php\\index2.php",
+    "line": 7,
+    "severity": "HIGH",
+    "category": "Command Execution",
+    "message": "Command execution can lead to injection if args are tainted.",
+    "suggestion": "Avoid shell execution; use built-in APIs and strict validation.",
+    "owasp": "A03:2021-Injection",
+    "cwe": "",
+    "snippet": "$file = $_GET['file'];",
+    "detected_by": "Regex",
+    "lines": [
+      7
+    ]
+  },
+  {
+    "id": "PHP-WEAK-HASH",
+    "file": "samples/php\\index2.php",
+    "line": 18,
+    "severity": "HIGH",
+    "category": "Cryptography",
+    "message": "Weak hashing algorithm used.",
+    "suggestion": "Use password_hash() with bcrypt or Argon2.",
+    "owasp": "A02:2021-CryptographicFailures",
+    "cwe": "CWE-327,CWE-328",
+    "snippet": "$hash1 = md5($password);",
+    "detected_by": "Heuristic",
+    "lines": [
+      18,
+      19
+    ]
+  },
+  {
+    "id": "PHP-MYSQLI-TAINT-001",
+    "file": "samples/php\\index2.php",
+    "line": 14,
+    "severity": "CRITICAL",
+    "category": "Sql Injection",
+    "message": "mysqli_query() with user input \u2192 SQL Injection.",
+    "suggestion": "Always use prepared statements (mysqli_stmt or PDO).",
+    "owasp": "A03:2021-Injection",
+    "cwe": "",
+    "snippet": "$result = mysqli_query($conn, $query);",
+    "detected_by": "Context-AST",
+    "lines": [
+      14
+    ]
+  },
+  {
+    "id": "PHP-INCLUDE-001",
+    "file": "samples/php\\index2.php",
+    "line": 22,
+    "severity": "HIGH",
+    "category": "File Inclusion",
+    "message": "Dynamic include/require detected. May allow LFI/RFI.",
+    "suggestion": "Never include user input in include/require paths. Use whitelists.",
+    "owasp": "A05:2021-SecurityMisconfiguration",
+    "cwe": "",
+    "snippet": "$page = $_GET['page'];",
+    "detected_by": "Regex",
+    "lines": [
+      22
+    ]
+  },
+  {
+    "id": "PHP-MOVE-UPLOAD-TAINT-001",
+    "file": "samples/php\\index2.php",
+    "line": 38,
+    "severity": "CRITICAL",
+    "category": "Insecure File Upload",
+    "message": "move_uploaded_file() without validation allows arbitrary file upload.",
+    "suggestion": "Validate file type, size, and use randomized safe paths.",
+    "owasp": "A05:2021-SecurityMisconfiguration",
+    "cwe": "",
+    "snippet": "move_uploaded_file($_FILES['file']['tmp_name'], \"uploads/\" . $_FILES['file']['name']);",
+    "detected_by": "Context-AST",
+    "lines": [
+      38
+    ]
+  },
+  {
+    "id": "PHP-HEUR-023",
+    "file": "samples/php\\index2.php",
+    "line": 42,
+    "severity": "LOW",
+    "category": "Session Handling",
+    "message": "Session start detected, ensure secure flags are set.",
+    "suggestion": "Use secure session cookies (HttpOnly, Secure, SameSite).",
+    "owasp": "A07:2021-IdentificationandAuthenticationFailures",
+    "cwe": "",
+    "snippet": "session_start();",
+    "detected_by": "Heuristic",
+    "lines": [
+      42
+    ]
+  },
+  {
+    "id": "PHP-SYSTEM-AST-001",
+    "file": "samples/php\\index2.php",
+    "line": 8,
+    "severity": "CRITICAL",
+    "category": "Command Injection",
+    "message": "system() called with user input \u2192 Command Injection.",
+    "suggestion": "Avoid system(); use built-in APIs.",
+    "owasp": "A03:2021-Injection",
+    "cwe": "",
+    "snippet": "system(\"cat \" . $file);",
+    "detected_by": "Context-AST",
+    "lines": [
+      8
+    ]
+  },
+  {
+    "id": "PHP-CTX-001",
+    "file": "samples/php\\index2.php",
+    "line": 23,
+    "severity": "CRITICAL",
+    "category": "File Inclusion",
+    "message": "File include/require uses untrusted input.",
+    "suggestion": "Do not include files based on user input. Use whitelisted paths.",
+    "owasp": "A05:2021-SecurityMisconfiguration",
+    "cwe": "",
+    "snippet": "include($page . \".php\");",
+    "detected_by": "Context-AST",
+    "lines": [
+      23
+    ]
+  },
+  {
+    "id": "PHP-FILE-READ-001",
+    "file": "samples/php\\index3.php",
+    "line": 11,
+    "severity": "HIGH",
+    "category": "Path Traversal",
+    "message": "file_get_contents on user input may allow path traversal / arbitrary file read.",
+    "suggestion": "Avoid using unvalidated input in file_get_contents.",
+    "owasp": "A05:2021-SecurityMisconfiguration,A10:2021-SSRF",
+    "cwe": "",
+    "snippet": "$response = file_get_contents(\"http://\" . $url);",
+    "detected_by": "Context-AST",
+    "lines": [
+      11,
+      14
+    ]
+  },
+  {
+    "id": "PHP-HARDCODED-CREDS",
+    "file": "samples/php\\index3.php",
+    "line": 2,
+    "severity": "CRITICAL",
+    "category": "Authentication",
+    "message": "Hardcoded credentials detected in authentication check.",
+    "suggestion": "Store credentials securely (e.g., env vars, config files) not in source code.",
+    "owasp": "A01:2021-BrokenAccessControl,A02:2021-CryptographicFailures",
+    "cwe": "CWE-798",
+    "snippet": "if ($_GET['role'] === 'admin') {",
+    "detected_by": "Regex",
+    "lines": [
+      2
+    ]
+  },
+  {
+    "id": "PHP-HARDCODED-SECRET-002",
+    "file": "samples/php\\index3.php",
+    "line": 6,
+    "severity": "HIGH",
+    "category": "Insecure Design",
+    "message": "Hardcoded secret or token detected.",
+    "suggestion": "Use environment variables or a secrets manager.",
+    "owasp": "A04:2021-InsecureDesign",
+    "cwe": "",
+    "snippet": "$secret = \"mySuperSecretApiKey123\";",
+    "detected_by": "Regex",
+    "lines": [
+      6
+    ]
+  },
+  {
+    "id": "PHP-OUTDATED-MYSQL-001",
+    "file": "samples/php\\index3.php",
+    "line": 8,
+    "severity": "HIGH",
+    "category": "Outdated Components",
+    "message": "Use of deprecated mysql_connect() detected.",
+    "suggestion": "Migrate to PDO or mysqli with prepared statements.",
+    "owasp": "A06:2021-VulnerableandOutdatedComponents",
+    "cwe": "",
+    "snippet": "$conn = mysql_connect(\"localhost\", \"root\", \"password\");",
+    "detected_by": "Regex",
+    "lines": [
+      8
+    ]
+  },
+  {
+    "id": "PHP-SYSTEM-EXEC-001",
+    "file": "samples/php\\index4.php",
+    "line": 3,
+    "severity": "HIGH",
+    "category": "Command Execution",
+    "message": "Command execution can lead to injection if args are tainted.",
+    "suggestion": "Avoid shell execution; use built-in APIs and strict validation.",
+    "owasp": "A03:2021-Injection",
+    "cwe": "",
+    "snippet": "echo preg_replace(\"/.*/e\", \"system('ls')\", $input);",
+    "detected_by": "AST",
+    "lines": [
+      3
+    ]
+  },
+  {
+    "id": "PHP-INCLUDE-001",
+    "file": "samples/php\\index4.php",
+    "line": 8,
+    "severity": "HIGH",
+    "category": "File Inclusion",
+    "message": "Dynamic include/require detected. May allow LFI/RFI.",
+    "suggestion": "Never include user input in include/require paths. Use whitelists.",
+    "owasp": "A05:2021-SecurityMisconfiguration",
+    "cwe": "",
+    "snippet": "$file = $_GET['page'];",
+    "detected_by": "Regex",
+    "lines": [
+      8
+    ]
+  },
+  {
+    "id": "PHP-DESERIALIZATION",
+    "file": "samples/php\\index4.php",
+    "line": 6,
+    "severity": "CRITICAL",
+    "category": "Insecure Deserialization",
+    "message": "Untrusted unserialize() usage detected.",
+    "suggestion": "Avoid unserialize(), use safe formats like JSON.",
+    "owasp": "A08:2021-SoftwareIntegrityFailures,A08:2021-SoftwareandDataIntegrityFailures",
+    "cwe": "CWE-502",
+    "snippet": "$obj = unserialize($data);",
+    "detected_by": "Context-AST",
+    "lines": [
+      6
+    ]
+  },
+  {
+    "id": "PHP-CTX-001",
+    "file": "samples/php\\index4.php",
+    "line": 9,
+    "severity": "CRITICAL",
+    "category": "File Inclusion",
+    "message": "File include/require uses untrusted input.",
+    "suggestion": "Do not include files based on user input. Use whitelisted paths.",
+    "owasp": "A05:2021-SecurityMisconfiguration",
+    "cwe": "",
+    "snippet": "include($file);",
+    "detected_by": "Context-AST",
+    "lines": [
+      9
+    ]
+  },
+  {
+    "id": "PHP-SYSTEM-EXEC-001",
+    "file": "samples/php\\index5.php",
+    "line": 15,
+    "severity": "HIGH",
+    "category": "Command Execution",
+    "message": "Command execution can lead to injection if args are tainted.",
+    "suggestion": "Avoid shell execution; use built-in APIs and strict validation.",
+    "owasp": "A03:2021-Injection",
+    "cwe": "",
+    "snippet": "if (isset($_GET['cmd'])) {",
+    "detected_by": "Regex",
+    "lines": [
+      15
+    ]
+  },
+  {
+    "id": "PHP-INCLUDE-001",
+    "file": "samples/php\\index5.php",
+    "line": 19,
+    "severity": "HIGH",
+    "category": "File Inclusion",
+    "message": "Dynamic include/require detected. May allow LFI/RFI.",
+    "suggestion": "Never include user input in include/require paths. Use whitelists.",
+    "owasp": "A05:2021-SecurityMisconfiguration",
+    "cwe": "",
+    "snippet": "if (isset($_GET['page'])) {",
+    "detected_by": "Regex",
+    "lines": [
+      19
+    ]
+  },
+  {
+    "id": "PHP-HEUR-023",
+    "file": "samples/php\\index5.php",
+    "line": 23,
+    "severity": "LOW",
+    "category": "Session Handling",
+    "message": "Session start detected, ensure secure flags are set.",
+    "suggestion": "Use secure session cookies (HttpOnly, Secure, SameSite).",
+    "owasp": "A07:2021-IdentificationandAuthenticationFailures",
+    "cwe": "",
+    "snippet": "session_start();",
+    "detected_by": "Heuristic",
+    "lines": [
+      23
+    ]
+  },
+  {
+    "id": "PHP-HARDCODED-CREDS-001",
+    "file": "samples/php\\index5.php",
+    "line": 3,
+    "severity": "HIGH",
+    "category": "Sensitive Info Disclosure",
+    "message": "Hardcoded database username detected.",
+    "suggestion": "Use environment variables or config files instead of hardcoding credentials.",
+    "owasp": "A05:2021-SecurityMisconfiguration",
+    "cwe": "CWE-798",
+    "snippet": "$username = \"root\";",
+    "detected_by": "Heuristic",
+    "lines": [
+      3
+    ]
+  },
+  {
+    "id": "PHP-NO-DB-ERROR-HANDLING-001",
+    "file": "samples/php\\index5.php",
+    "line": 7,
+    "severity": "MEDIUM",
+    "category": "Error Handling",
+    "message": "Database connection created without proper error handling.",
+    "suggestion": "Always wrap database connections in try/catch and log errors securely.",
+    "owasp": "A09:2021-SecurityLoggingandMonitoringFailures",
+    "cwe": "CWE-252",
+    "snippet": "$conn = new mysqli($servername, $username, $password, $dbname);",
+    "detected_by": "Heuristic",
+    "lines": [
+      7
+    ]
+  },
+  {
+    "id": "PHP-SYSTEM-AST-001",
+    "file": "samples/php\\index5.php",
+    "line": 16,
+    "severity": "CRITICAL",
+    "category": "Command Injection",
+    "message": "system() called with user input \u2192 Command Injection.",
+    "suggestion": "Avoid system(); use built-in APIs.",
+    "owasp": "A03:2021-Injection",
+    "cwe": "",
+    "snippet": "system($_GET['cmd']);",
+    "detected_by": "Context-AST",
+    "lines": [
+      16
+    ]
+  },
+  {
+    "id": "PHP-CTX-001",
+    "file": "samples/php\\index5.php",
+    "line": 20,
+    "severity": "CRITICAL",
+    "category": "File Inclusion",
+    "message": "File include/require uses untrusted input.",
+    "suggestion": "Do not include files based on user input. Use whitelisted paths.",
+    "owasp": "A05:2021-SecurityMisconfiguration",
+    "cwe": "",
+    "snippet": "include($_GET['page']);",
+    "detected_by": "Context-AST",
+    "lines": [
+      20
+    ]
+  },
+  {
+    "id": "PHP-FILE-READ-001",
+    "file": "samples/php\\index6.php",
+    "line": 2,
+    "severity": "HIGH",
+    "category": "Path Traversal",
+    "message": "file_get_contents on user input may allow path traversal / arbitrary file read.",
+    "suggestion": "Avoid using unvalidated input in file_get_contents.",
+    "owasp": "A05:2021-SecurityMisconfiguration",
+    "cwe": "",
+    "snippet": "$code = file_get_contents($argv[1] ?? \"test.php\");",
+    "detected_by": "Context-AST",
+    "lines": [
+      2
+    ]
+  },
+  {
+    "id": "PHP-HEUR-021",
+    "file": "samples/php\\index6.php",
+    "line": 5,
+    "severity": "MEDIUM",
+    "category": "Superglobals",
+    "message": "Use of PHP superglobal $_REQUEST detected.",
+    "suggestion": "Use $_GET or $_POST explicitly and validate input.",
+    "owasp": "A01:2021-BrokenAccessControl",
+    "cwe": "",
+    "snippet": "$sources = [\"\\$_GET\", \"\\$_POST\", \"\\$_REQUEST\"];",
+    "detected_by": "Heuristic",
+    "lines": [
+      5
+    ]
+  },
+  {
+    "id": "PHP-WEAK-PASSWORD-POLICY-001",
+    "file": "samples/php\\index6.php",
+    "line": 15,
+    "severity": "HIGH",
+    "category": "Weak Password Policy",
+    "message": "Weak password validation \u2192 Users may choose weak passwords.",
+    "suggestion": "Enforce minimum 8-character passwords with mixed character types.",
+    "owasp": "",
+    "cwe": "",
+    "snippet": "if (preg_match('/(\\$[a-zA-Z_]\\w*)\\s*=\\s*' . preg_quote($src, '/') . '/', $line, $m)) {",
+    "detected_by": "Heuristic",
+    "lines": [
+      15,
+      21
+    ]
+  },
+  {
+    "id": "PHP-SYSTEM-EXEC-001",
+    "file": "samples/php\\index7.php",
+    "line": 94,
+    "severity": "HIGH",
+    "category": "Command Execution",
+    "message": "Command execution can lead to injection if args are tainted.",
+    "suggestion": "Avoid shell execution; use built-in APIs and strict validation.",
+    "owasp": "A03:2021-Injection",
+    "cwe": "",
+    "snippet": "$command = $_GET['command'];",
+    "detected_by": "Regex",
+    "lines": [
+      94,
+      271
+    ]
+  },
+  {
+    "id": "PHP-WEAK-HASH",
+    "file": "samples/php\\index7.php",
+    "line": 38,
+    "severity": "HIGH",
+    "category": "Cryptography",
+    "message": "Weak hashing algorithm used.",
+    "suggestion": "Use password_hash() with bcrypt or Argon2.",
+    "owasp": "A02:2021-CryptographicFailures",
+    "cwe": "CWE-327,CWE-328",
+    "snippet": "if (md5($password) === $stored_hash) {",
+    "detected_by": "Heuristic",
+    "lines": [
+      38,
+      87
+    ]
+  },
+  {
+    "id": "PHP-MT-RAND-001",
+    "file": "samples/php\\index7.php",
+    "line": 126,
+    "severity": "MEDIUM",
+    "category": "Weak Randomness",
+    "message": "Use of mt_rand() for security tokens is unsafe.",
+    "suggestion": "Use random_int() or random_bytes() instead.",
+    "owasp": "A02:2021-CryptographicFailures",
+    "cwe": "CWE-338",
+    "snippet": "$token = mt_rand();",
+    "detected_by": "Regex",
+    "lines": [
+      126
+    ]
+  },
+  {
+    "id": "PHP-SESSION-001",
+    "file": "samples/php\\index7.php",
+    "line": 48,
+    "severity": "MEDIUM",
+    "category": "Session Management",
+    "message": "Cookie set without Secure/HttpOnly/SameSite flags.",
+    "suggestion": "Always set cookies with HttpOnly, Secure, and SameSite=strict.",
+    "owasp": "A07:2021-IdentificationandAuthenticationFailures",
+    "cwe": "",
+    "snippet": "setcookie(\"user_data\", base64_encode(serialize($_SESSION)), time()+3600, \"/\", \"\", false, false);",
+    "detected_by": "AST",
+    "lines": [
+      48
+    ]
+  },
+  {
+    "id": "PHP-XXE-BILLION-LAUGHS-001",
+    "file": "samples/php\\index7.php",
+    "line": 105,
+    "severity": "CRITICAL",
+    "category": "Xxe / Billion Laughs",
+    "message": "XML parsed with LIBXML_NOENT \u2192 XXE / Billion Laughs risk.",
+    "suggestion": "Disable external entity expansion (do not use LIBXML_NOENT).",
+    "owasp": "",
+    "cwe": "",
+    "snippet": "$doc->loadXML($xml, LIBXML_NOENT);",
+    "detected_by": "Regex",
+    "lines": [
+      105
+    ]
+  },
+  {
+    "id": "PHP-UNSAFE-EXTRACT-001",
+    "file": "samples/php\\index7.php",
+    "line": 134,
+    "severity": "HIGH",
+    "category": "Unsafe Extract()",
+    "message": "extract() with EXTR_SKIP \u2192 Unsafe variable overwrite.",
+    "suggestion": "Avoid EXTR_SKIP; explicitly define variables.",
+    "owasp": "",
+    "cwe": "",
+    "snippet": "extract($_GET, EXTR_SKIP);",
+    "detected_by": "Regex",
+    "lines": [
+      134
+    ]
+  },
+  {
+    "id": "PHP-PASSWORD-IN-URL-001",
+    "file": "samples/php\\index7.php",
+    "line": 10,
+    "severity": "HIGH",
+    "category": "Password In Url",
+    "message": "Password passed in URL \u2192 Information exposure.",
+    "suggestion": "Transmit passwords in POST requests only.",
+    "owasp": "",
+    "cwe": "",
+    "snippet": "$password = $_GET['password'];",
+    "detected_by": "Regex",
+    "lines": [
+      10,
+      160
+    ]
+  },
+  {
+    "id": "PHP-HEUR-021",
+    "file": "samples/php\\index7.php",
+    "line": 53,
+    "severity": "MEDIUM",
+    "category": "Superglobals",
+    "message": "Use of PHP superglobal $_REQUEST detected.",
+    "suggestion": "Use $_GET or $_POST explicitly and validate input.",
+    "owasp": "A01:2021-BrokenAccessControl",
+    "cwe": "",
+    "snippet": "foreach ($_REQUEST as $key => $value) {",
+    "detected_by": "Heuristic",
+    "lines": [
+      53
+    ]
+  },
+  {
+    "id": "PHP-HEUR-023",
+    "file": "samples/php\\index7.php",
+    "line": 46,
+    "severity": "LOW",
+    "category": "Session Handling",
+    "message": "Session start detected, ensure secure flags are set.",
+    "suggestion": "Use secure session cookies (HttpOnly, Secure, SameSite).",
+    "owasp": "A07:2021-IdentificationandAuthenticationFailures",
+    "cwe": "",
+    "snippet": "session_start();",
+    "detected_by": "Heuristic",
+    "lines": [
+      46
+    ]
+  },
+  {
+    "id": "PHP-EXEC-AST-001",
+    "file": "samples/php\\index7.php",
+    "line": 96,
+    "severity": "CRITICAL",
+    "category": "Command Injection",
+    "message": "exec() called with user input \u2192 Command Injection.",
+    "suggestion": "Avoid exec(); use built-in APIs.",
+    "owasp": "A03:2021-Injection",
+    "cwe": "",
+    "snippet": "exec(\"ls -la \" . $command, $output);",
+    "detected_by": "Context-AST",
+    "lines": [
+      96
+    ]
+  },
+  {
+    "id": "PHP-PREG-REPLACE-AST-001",
+    "file": "samples/php\\index7.php",
+    "line": 114,
+    "severity": "HIGH",
+    "category": "Dangerous Function",
+    "message": "preg_replace with /e modifier executes code \u2192 RCE risk.",
+    "suggestion": "Use preg_replace_callback instead of /e.",
+    "owasp": "A03:2021-Injection",
+    "cwe": "",
+    "snippet": "$result = preg_replace('/\\{(\\w+)\\}/e', '$data[\"$1\"]', $template);",
+    "detected_by": "AST",
+    "lines": [
+      114
+    ]
+  },
+  {
+    "id": "PHP-HEADER-TAINT-001",
+    "file": "samples/php\\index7.php",
+    "line": 4,
+    "severity": "CRITICAL",
+    "category": "Http Response Splitting",
+    "message": "header() with user input may lead to HTTP Response Splitting.",
+    "suggestion": "Never pass raw user input to header().",
+    "owasp": "A03:2021-Injection",
+    "cwe": "",
+    "snippet": "header(\"Location: \" . $redirect);",
+    "detected_by": "Context-AST",
+    "lines": [
+      4,
+      30
+    ]
+  },
+  {
+    "id": "PY-EVAL-REGEX",
+    "file": "samples/python\\py1.py",
+    "line": 7,
+    "severity": "CRITICAL",
+    "category": "Code Injection",
+    "message": "Use of eval() can lead to code execution.",
+    "suggestion": "Avoid eval(); use ast.literal_eval if parsing data.",
+    "owasp": "A03:2021-Injection",
+    "cwe": "CWE-94",
+    "snippet": "eval(user_input)",
+    "detected_by": "Regex+AST(Taint)",
+    "lines": [
+      7
+    ]
+  },
+  {
+    "id": "PY-DESERIALIZATION",
+    "file": "samples/python\\py1.py",
+    "line": 10,
+    "severity": "CRITICAL",
+    "category": "Insecure Deserialization",
+    "message": "Untrusted pickle deserialization detected.",
+    "suggestion": "Use safe serialization libraries (e.g., JSON).",
+    "owasp": "A08:2021-SoftwareIntegrityFailures,A08:2021-SoftwareandDataIntegrityFailures",
+    "cwe": "CWE-502",
+    "snippet": "obj = pickle.load(f)",
+    "detected_by": "Heuristic",
+    "lines": [
+      10
+    ]
+  },
+  {
+    "id": "PY-PATH-TRAVERSAL-001",
+    "file": "samples/python\\py1.py",
+    "line": 9,
+    "severity": "CRITICAL",
+    "category": "Path Traversal",
+    "message": "User input flows into file open \u2192 Path Traversal / Arbitrary File Read.",
+    "suggestion": "Validate or whitelist filenames; prevent '..' or absolute paths.",
+    "owasp": "",
+    "cwe": "",
+    "snippet": "with open(\"data.pkl\", \"rb\") as f:",
+    "detected_by": "Context-AST",
+    "lines": [
+      9
+    ]
+  },
+  {
+    "id": "PY-SUBPROCESS-SHELL-TAINT",
+    "file": "samples/python\\py1.py",
+    "line": 14,
+    "severity": "CRITICAL",
+    "category": "Command Injection",
+    "message": "Untrusted input flows into subprocess with shell=True.",
+    "suggestion": "Avoid shell=True; pass arguments as list.",
+    "owasp": "A03:2021-Injection",
+    "cwe": "CWE-78",
+    "snippet": "subprocess.call(cmd, shell=True)",
+    "detected_by": "Regex+AST(Taint)",
+    "lines": [
+      14,
+      17
+    ]
+  },
+  {
+    "id": "PY-IMPROPER-EXCEPTION",
+    "file": "samples/python\\py2.py",
+    "line": 100,
+    "severity": "MEDIUM",
+    "category": "Error Handling",
+    "message": "Swallowing exceptions without handling.",
+    "suggestion": "Handle exceptions properly or log securely.",
+    "owasp": "A09:2021-SecurityLoggingandMonitoringFailures",
+    "cwe": "CWE-391",
+    "snippet": "except Exception:",
+    "detected_by": "Regex",
+    "lines": [
+      100
+    ]
+  },
+  {
+    "id": "PY-HARDCODED-CREDS",
+    "file": "samples/python\\py3.py",
+    "line": 31,
+    "severity": "CRITICAL",
+    "category": "Authentication",
+    "message": "Hardcoded credentials or secrets found in source code.",
+    "suggestion": "Remove hardcoded secrets. Use environment variables or a secrets manager.",
+    "owasp": "A02:2021-CryptographicFailures,A03:2021-Injection",
+    "cwe": "CWE-798,CWE-89",
+    "snippet": "cur.execute(f\"SELECT role FROM users WHERE username='{username}' AND password='{password}'\")",
+    "detected_by": "Regex",
+    "lines": [
+      31
+    ]
+  },
+  {
+    "id": "PY-DESERIALIZATION",
+    "file": "samples/python\\py3.py",
+    "line": 64,
+    "severity": "CRITICAL",
+    "category": "Insecure Deserialization",
+    "message": "Untrusted pickle deserialization detected.",
+    "suggestion": "Use safe serialization libraries (e.g., JSON).",
+    "owasp": "A08:2021-SoftwareIntegrityFailures",
+    "cwe": "CWE-502",
+    "snippet": "data = pickle.loads(f.read())",
+    "detected_by": "Regex",
+    "lines": [
+      64
+    ]
+  },
+  {
+    "id": "PY-DEBUG-MODE",
+    "file": "samples/python\\py3.py",
+    "line": 71,
+    "severity": "HIGH",
+    "category": "Configuration",
+    "message": "Debug mode is enabled. This exposes stack traces and an interactive console in production.",
+    "suggestion": "Disable debug mode in production. Use environment-specific settings.",
+    "owasp": "A05:2021-SecurityMisconfiguration",
+    "cwe": "CWE-215,CWE-489",
+    "snippet": "app.run(host=\"0.0.0.0\", port=5000, debug=True)",
+    "detected_by": "Regex",
+    "lines": [
+      71
+    ]
+  },
+  {
+    "id": "PY-EVAL-REGEX",
+    "file": "samples/python\\py4.py",
+    "line": 162,
+    "severity": "CRITICAL",
+    "category": "Code Injection",
+    "message": "Use of eval() can lead to code execution.",
+    "suggestion": "Avoid eval(); use ast.literal_eval if parsing data.",
+    "owasp": "A03:2021-Injection",
+    "cwe": "CWE-94",
+    "snippet": "result = eval(code)",
+    "detected_by": "Regex+AST(Taint)",
+    "lines": [
+      162
+    ]
+  },
+  {
+    "id": "PY-HARDCODED-CREDS",
+    "file": "samples/python\\py4.py",
+    "line": 25,
+    "severity": "CRITICAL",
+    "category": "Authentication",
+    "message": "Hardcoded credentials or secrets found in source code.",
+    "suggestion": "Remove hardcoded secrets. Use environment variables or a secrets manager.",
+    "owasp": "A02:2021-CryptographicFailures",
+    "cwe": "CWE-798",
+    "snippet": "API_KEY = \"sk_live_51Mn8JqL5fG8hT9wXyZvB7cRtNpQ2aKdE6\"",
+    "detected_by": "Regex",
+    "lines": [
+      25,
+      24,
+      26
+    ]
+  },
+  {
+    "id": "PY-WEAK-HASHING",
+    "file": "samples/python\\py4.py",
+    "line": 113,
+    "severity": "CRITICAL",
+    "category": "Cryptography",
+    "message": "Weak hashing algorithm (MD5/SHA1) used for password hashing.",
+    "suggestion": "Use bcrypt, Argon2, or PBKDF2 with a strong iteration count and salt.",
+    "owasp": "A02:2021-CryptographicFailures",
+    "cwe": "CWE-327,CWE-328",
+    "snippet": "return hashlib.md5(password.encode()).hexdigest()",
+    "detected_by": "Regex",
+    "lines": [
+      113
+    ]
+  },
+  {
+    "id": "PY-DESERIALIZATION",
+    "file": "samples/python\\py4.py",
+    "line": 79,
+    "severity": "CRITICAL",
+    "category": "Insecure Deserialization",
+    "message": "Untrusted pickle deserialization detected.",
+    "suggestion": "Use safe serialization libraries (e.g., JSON).",
+    "owasp": "A08:2021-SoftwareIntegrityFailures",
+    "cwe": "CWE-502",
+    "snippet": "deserialized = pickle.loads(base64.urlsafe_b64decode(data))",
+    "detected_by": "Regex",
+    "lines": [
+      79
+    ]
+  },
+  {
+    "id": "PY-INSECURE-RANDOM",
+    "file": "samples/python\\py4.py",
+    "line": 185,
+    "severity": "HIGH",
+    "category": "Cryptography",
+    "message": "Insecure randomness used for security-critical functionality.",
+    "suggestion": "Use secrets module (secrets.token_hex, secrets.randbelow).",
+    "owasp": "A02:2021-CryptographicFailures",
+    "cwe": "CWE-338",
+    "snippet": "token = random.randint(100000, 999999)",
+    "detected_by": "Heuristic",
+    "lines": [
+      185
+    ]
+  },
+  {
+    "id": "PY-INCORRECT-PERMISSIONS",
+    "file": "samples/python\\py4.py",
+    "line": 135,
+    "severity": "HIGH",
+    "category": "Access Control",
+    "message": "Insecure file permissions detected (chmod 0777). Files are world-writable and executable.",
+    "suggestion": "Use least privilege (e.g., 0o600 or 0o640) when setting file permissions.",
+    "owasp": "A05:2021-SecurityMisconfiguration",
+    "cwe": "CWE-732",
+    "snippet": "os.chmod(upload_path, 0o777)",
+    "detected_by": "Regex",
+    "lines": [
+      135
+    ]
+  },
+  {
+    "id": "PY-BUSINESS-LOGIC-FLAW",
+    "file": "samples/python\\py4.py",
+    "line": 173,
+    "severity": "HIGH",
+    "category": "Business Logic",
+    "message": "Business Logic Flaw: transfer_funds() may lack authorization or limit checks.",
+    "suggestion": "Ensure role-based access control and proper validation for business logic operations.",
+    "owasp": "A01:2021-BrokenAccessControl",
+    "cwe": "CWE-840",
+    "snippet": "def transfer_funds():",
+    "detected_by": "Heuristic",
+    "lines": [
+      173
+    ]
+  },
+  {
+    "id": "PY-INFINITE-SESSION",
+    "file": "samples/python\\py4.py",
+    "line": 154,
+    "severity": "MEDIUM",
+    "category": "Session Management",
+    "message": "Infinite session lifetime detected. This increases the risk of stolen or hijacked sessions.",
+    "suggestion": "Set session timeouts and enforce automatic session expiration.",
+    "owasp": "A07:2021-IdentificationandAuthenticationFailures",
+    "cwe": "CWE-613",
+    "snippet": "session.permanent = True",
+    "detected_by": "Heuristic",
+    "lines": [
+      154
+    ]
+  },
+  {
+    "id": "PY-UNRESTRICTED-UPLOAD",
+    "file": "samples/python\\py4.py",
+    "line": 124,
+    "severity": "CRITICAL",
+    "category": "File Handling",
+    "message": "Unrestricted file upload detected. Users may upload dangerous files (e.g., .php, .jsp, .exe).",
+    "suggestion": "Validate file extensions and MIME types. Store uploads outside the webroot.",
+    "owasp": "A05:2021-SecurityMisconfiguration",
+    "cwe": "CWE-434",
+    "snippet": "def upload_file():",
+    "detected_by": "Heuristic",
+    "lines": [
+      124
+    ]
+  },
+  {
+    "id": "PY-TEMPLATE-SSTI-001",
+    "file": "samples/python\\py4.py",
+    "line": 35,
+    "severity": "CRITICAL",
+    "category": "Cross-Site Scripting / Server-Side Template Injection",
+    "message": "User input flows into render_template_string \u2192 SSTI/XSS risk.",
+    "suggestion": "Sanitize input or use safe template rendering with context variables.",
+    "owasp": "A03:2021-Injection",
+    "cwe": "CWE-79,CWE-94",
+    "snippet": "return render_template_string(f'<h1>Search Results for: {query}</h1>')",
+    "detected_by": "Context-AST+AST(Taint)",
+    "lines": [
+      35,
+      40
+    ]
+  },
+  {
+    "id": "PY-PATH-TRAVERSAL-001",
+    "file": "samples/python\\py4.py",
+    "line": 98,
+    "severity": "CRITICAL",
+    "category": "Path Traversal",
+    "message": "User input flows into file open \u2192 Path Traversal / Arbitrary File Read.",
+    "suggestion": "Validate or whitelist filenames; prevent '..' or absolute paths.",
+    "owasp": "A01:2021-BrokenAccessControl,A05:2021-SecurityMisconfiguration",
+    "cwe": "CWE-22,CWE-639",
+    "snippet": "with open(filepath, 'r') as f:",
+    "detected_by": "Context-AST+AST(Taint)",
+    "lines": [
+      98
+    ]
+  },
+  {
+    "id": "PY-OPEN-REDIRECT-001",
+    "file": "samples/python\\py4.py",
+    "line": 170,
+    "severity": "HIGH",
+    "category": "Open Redirect",
+    "message": "User input flows into redirect() \u2192 Open Redirect.",
+    "suggestion": "Validate redirect URLs against a whitelist.",
+    "owasp": "",
+    "cwe": "",
+    "snippet": "return redirect(url)",
+    "detected_by": "Context-AST",
+    "lines": [
+      170
+    ]
+  },
+  {
+    "id": "PY-TAINT-CMD",
+    "file": "samples/python\\py4.py",
+    "line": 72,
+    "severity": "CRITICAL",
+    "category": "Command Injection",
+    "message": "User input flows into system command.",
+    "suggestion": "Validate/escape input before passing to system commands.",
+    "owasp": "A03:2021-Injection",
+    "cwe": "CWE-78",
+    "snippet": "result = subprocess.run(cmd, shell=True, capture_output=True, text=True)",
+    "detected_by": "Regex+AST(Taint)",
+    "lines": [
+      72
+    ]
+  },
+  {
+    "id": "PYTHON-EXECUTESQL-SQLI",
+    "file": "samples/python\\py4.py",
+    "line": 64,
+    "severity": "CRITICAL",
+    "category": "Injection",
+    "message": "User input flows into SQL execute() \u2192 SQL Injection.",
+    "suggestion": "Use parameterized queries with placeholders (%s, ?, etc).",
+    "owasp": "A03:2021-Injection",
+    "cwe": "CWE-89",
+    "snippet": "cursor.execute(query)",
+    "detected_by": "Regex+AST(Taint)",
+    "lines": [
+      64
+    ]
+  },
+  {
+    "id": "PY-PATH-TRAVERSAL",
+    "file": "samples/python\\py4.py",
+    "line": 96,
+    "severity": "CRITICAL",
+    "category": "Path Traversal",
+    "message": "User-controlled input flows into file path.",
+    "suggestion": "Use whitelist validation and os.path.abspath to constrain paths.",
+    "owasp": "A01:2021-BrokenAccessControl,A05:2021-SecurityMisconfiguration",
+    "cwe": "CWE-22,CWE-639",
+    "snippet": "filepath = os.path.join('/tmp/uploads', filename)",
+    "detected_by": "Regex+AST(Taint)",
+    "lines": [
+      96,
+      132
+    ]
+  },
+  {
+    "id": "PY-SSRF",
+    "file": "samples/python\\py4.py",
+    "line": 142,
+    "severity": "CRITICAL",
+    "category": "Injection",
+    "message": "Possible SSRF: user-controlled input passed to HTTP request function.",
+    "suggestion": "Validate and restrict URLs. Use an allowlist of trusted domains/IPs.",
+    "owasp": "A10:2021-Server-SideRequestForgery",
+    "cwe": "CWE-918",
+    "snippet": "response = urllib.request.urlopen(url)",
+    "detected_by": "Regex+AST(Taint)",
+    "lines": [
+      142
+    ]
+  },
+  {
+    "id": "PY-EVAL-REGEX",
+    "file": "samples/python\\py5.py",
+    "line": 57,
+    "severity": "CRITICAL",
+    "category": "Code Injection",
+    "message": "Use of eval() can lead to code execution.",
+    "suggestion": "Avoid eval(); use ast.literal_eval if parsing data.",
+    "owasp": "A03:2021-Injection",
+    "cwe": "CWE-94",
+    "snippet": "result = eval(code)",
+    "detected_by": "Regex+AST(Taint)",
+    "lines": [
+      57
+    ]
+  },
+  {
+    "id": "PY-HARDCODED-CREDS",
+    "file": "samples/python\\py5.py",
+    "line": 16,
+    "severity": "CRITICAL",
+    "category": "Authentication",
+    "message": "Hardcoded credentials or secrets found in source code.",
+    "suggestion": "Remove hardcoded secrets. Use environment variables or a secrets manager.",
+    "owasp": "A02:2021-CryptographicFailures",
+    "cwe": "CWE-798",
+    "snippet": "API_KEY = \"sk_live_51Mn8JqL5fG8hT9wXyZvB7cRtNpQ2aKdE6\"",
+    "detected_by": "Regex",
+    "lines": [
+      16,
+      15
+    ]
+  },
+  {
+    "id": "PY-WEAK-HASHING",
+    "file": "samples/python\\py5.py",
+    "line": 113,
+    "severity": "CRITICAL",
+    "category": "Cryptography",
+    "message": "Weak hashing algorithm (MD5/SHA1) used for password hashing.",
+    "suggestion": "Use bcrypt, Argon2, or PBKDF2 with a strong iteration count and salt.",
+    "owasp": "A02:2021-CryptographicFailures",
+    "cwe": "CWE-327,CWE-328",
+    "snippet": "return hashlib.md5(password.encode()).hexdigest()",
+    "detected_by": "Regex",
+    "lines": [
+      113
+    ]
+  },
+  {
+    "id": "PY-DESERIALIZATION",
+    "file": "samples/python\\py5.py",
+    "line": 66,
+    "severity": "CRITICAL",
+    "category": "Insecure Deserialization",
+    "message": "Untrusted pickle deserialization detected.",
+    "suggestion": "Use safe serialization libraries (e.g., JSON).",
+    "owasp": "A08:2021-SoftwareIntegrityFailures",
+    "cwe": "CWE-502",
+    "snippet": "deserialized = pickle.loads(base64.urlsafe_b64decode(data))",
+    "detected_by": "Regex",
+    "lines": [
+      66
+    ]
+  },
+  {
+    "id": "PY-INSECURE-RANDOM",
+    "file": "samples/python\\py5.py",
+    "line": 136,
+    "severity": "HIGH",
+    "category": "Cryptography",
+    "message": "Insecure randomness used for security-critical functionality.",
+    "suggestion": "Use secrets module (secrets.token_hex, secrets.randbelow).",
+    "owasp": "A02:2021-CryptographicFailures",
+    "cwe": "CWE-338",
+    "snippet": "token = random.randint(100000, 999999)",
+    "detected_by": "Heuristic",
+    "lines": [
+      136,
+      141
+    ]
+  },
+  {
+    "id": "PY-DEBUG-MODE",
+    "file": "samples/python\\py5.py",
+    "line": 152,
+    "severity": "HIGH",
+    "category": "Configuration",
+    "message": "Debug mode is enabled. This exposes stack traces and an interactive console in production.",
+    "suggestion": "Disable debug mode in production. Use environment-specific settings.",
+    "owasp": "A05:2021-SecurityMisconfiguration",
+    "cwe": "CWE-215,CWE-489",
+    "snippet": "app.run(host='0.0.0.0', port=5000, debug=True)",
+    "detected_by": "Regex",
+    "lines": [
+      152
+    ]
+  },
+  {
+    "id": "PY-INCORRECT-PERMISSIONS",
+    "file": "samples/python\\py5.py",
+    "line": 93,
+    "severity": "HIGH",
+    "category": "Access Control",
+    "message": "Insecure file permissions detected (chmod 0777). Files are world-writable and executable.",
+    "suggestion": "Use least privilege (e.g., 0o600 or 0o640) when setting file permissions.",
+    "owasp": "A05:2021-SecurityMisconfiguration",
+    "cwe": "CWE-732",
+    "snippet": "os.chmod(upload_path, 0o777)",
+    "detected_by": "Regex",
+    "lines": [
+      93
+    ]
+  },
+  {
+    "id": "PY-BUSINESS-LOGIC-FLAW",
+    "file": "samples/python\\py5.py",
+    "line": 124,
+    "severity": "HIGH",
+    "category": "Business Logic",
+    "message": "Business Logic Flaw: transfer_funds() may lack authorization or limit checks.",
+    "suggestion": "Ensure role-based access control and proper validation for business logic operations.",
+    "owasp": "A01:2021-BrokenAccessControl",
+    "cwe": "CWE-840",
+    "snippet": "def transfer_funds():",
+    "detected_by": "Heuristic",
+    "lines": [
+      124
+    ]
+  },
+  {
+    "id": "PY-INSECURE-COOKIE",
+    "file": "samples/python\\py5.py",
+    "line": 143,
+    "severity": "HIGH",
+    "category": "Session Management",
+    "message": "Cookie set without Secure or HttpOnly flags. This exposes cookies to theft via XSS or network sniffing.",
+    "suggestion": "Always set cookies with Secure=True and HttpOnly=True.",
+    "owasp": "A02:2021-CryptographicFailures",
+    "cwe": "CWE-1004,CWE-614",
+    "snippet": "resp.set_cookie(\"sessionid\", sid)",
+    "detected_by": "Heuristic",
+    "lines": [
+      143
+    ]
+  },
+  {
+    "id": "PY-INFINITE-SESSION",
+    "file": "samples/python\\py5.py",
+    "line": 103,
+    "severity": "MEDIUM",
+    "category": "Session Management",
+    "message": "Infinite session lifetime detected. This increases the risk of stolen or hijacked sessions.",
+    "suggestion": "Set session timeouts and enforce automatic session expiration.",
+    "owasp": "A07:2021-IdentificationandAuthenticationFailures",
+    "cwe": "CWE-613",
+    "snippet": "session.permanent = True",
+    "detected_by": "Heuristic",
+    "lines": [
+      103
+    ]
+  },
+  {
+    "id": "PY-UNRESTRICTED-UPLOAD",
+    "file": "samples/python\\py5.py",
+    "line": 82,
+    "severity": "CRITICAL",
+    "category": "File Handling",
+    "message": "Unrestricted file upload detected. Users may upload dangerous files (e.g., .php, .jsp, .exe).",
+    "suggestion": "Validate file extensions and MIME types. Store uploads outside the webroot.",
+    "owasp": "A05:2021-SecurityMisconfiguration",
+    "cwe": "CWE-434",
+    "snippet": "def upload_file():",
+    "detected_by": "Heuristic",
+    "lines": [
+      82
+    ]
+  },
+  {
+    "id": "PY-TEMPLATE-SSTI-001",
+    "file": "samples/python\\py5.py",
+    "line": 34,
+    "severity": "CRITICAL",
+    "category": "Cross-Site Scripting / Server-Side Template Injection",
+    "message": "User input flows into render_template_string \u2192 SSTI/XSS risk.",
+    "suggestion": "Sanitize input or use safe template rendering with context variables.",
+    "owasp": "A03:2021-Injection",
+    "cwe": "CWE-79,CWE-94",
+    "snippet": "return render_template_string(f'<h1>Search Results for: {query}</h1>')",
+    "detected_by": "Context-AST+AST(Taint)",
+    "lines": [
+      34
+    ]
+  },
+  {
+    "id": "PY-PATH-TRAVERSAL-001",
+    "file": "samples/python\\py5.py",
+    "line": 76,
+    "severity": "CRITICAL",
+    "category": "Path Traversal",
+    "message": "User input flows into file open \u2192 Path Traversal / Arbitrary File Read.",
+    "suggestion": "Validate or whitelist filenames; prevent '..' or absolute paths.",
+    "owasp": "A01:2021-BrokenAccessControl,A05:2021-SecurityMisconfiguration",
+    "cwe": "CWE-22,CWE-639",
+    "snippet": "with open(filepath, 'r') as f:",
+    "detected_by": "Context-AST+AST(Taint)",
+    "lines": [
+      76
+    ]
+  },
+  {
+    "id": "PY-OPEN-REDIRECT-001",
+    "file": "samples/python\\py5.py",
+    "line": 110,
+    "severity": "HIGH",
+    "category": "Open Redirect",
+    "message": "User input flows into redirect() \u2192 Open Redirect.",
+    "suggestion": "Validate redirect URLs against a whitelist.",
+    "owasp": "",
+    "cwe": "",
+    "snippet": "return redirect(url)",
+    "detected_by": "Context-AST",
+    "lines": [
+      110
+    ]
+  },
+  {
+    "id": "PY-TAINT-CMD",
+    "file": "samples/python\\py5.py",
+    "line": 50,
+    "severity": "CRITICAL",
+    "category": "Command Injection",
+    "message": "User input flows into system command.",
+    "suggestion": "Validate/escape input before passing to system commands.",
+    "owasp": "A03:2021-Injection",
+    "cwe": "CWE-78",
+    "snippet": "result = subprocess.run(cmd, shell=True, capture_output=True, text=True)",
+    "detected_by": "Regex+AST(Taint)",
+    "lines": [
+      50
+    ]
+  },
+  {
+    "id": "PYTHON-EXECUTESQL-SQLI",
+    "file": "samples/python\\py5.py",
+    "line": 42,
+    "severity": "CRITICAL",
+    "category": "Injection",
+    "message": "User input flows into SQL execute() \u2192 SQL Injection.",
+    "suggestion": "Use parameterized queries with placeholders (%s, ?, etc).",
+    "owasp": "A03:2021-Injection",
+    "cwe": "CWE-89",
+    "snippet": "cursor.execute(query)",
+    "detected_by": "Regex+AST(Taint)",
+    "lines": [
+      42
+    ]
+  },
+  {
+    "id": "PY-PATH-TRAVERSAL",
+    "file": "samples/python\\py5.py",
+    "line": 74,
+    "severity": "CRITICAL",
+    "category": "Path Traversal",
+    "message": "User-controlled input flows into file path.",
+    "suggestion": "Use whitelist validation and os.path.abspath to constrain paths.",
+    "owasp": "A01:2021-BrokenAccessControl,A05:2021-SecurityMisconfiguration",
+    "cwe": "CWE-22,CWE-639",
+    "snippet": "filepath = os.path.join('/tmp/uploads', filename)",
+    "detected_by": "Regex+AST(Taint)",
+    "lines": [
+      74,
+      90
+    ]
+  }
+]

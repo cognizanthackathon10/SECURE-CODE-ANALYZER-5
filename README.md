@@ -1,50 +1,261 @@
-# Secure Code Analyzer (PHP + JavaScript)
-A lightweight static analyzer that detects insecure coding patterns in **PHP** and **JavaScript** with **actionable fixes**, **severity ranking**, and **JSON/HTML reports**.
+# Secure Code Analyzer
 
-## Features
-- Detects: **SQL Injection**, **XSS**, **Dangerous functions** (`eval`, `exec`), **Weak crypto** (`md5`, `sha1`), **Poor error handling**.
-- **Zero dependencies** (pure Python) – easy to run anywhere.
-- **CLI tool** with JSON and HTML report output.
-- **Rule-based engine** + a few **special detectors** (basic taint-like checks).
-- **OWASP Top 10 mapping** in rule metadata.
-- Ready-to-use **GitHub Actions** workflow for CI integration.
+A comprehensive security vulnerability scanner for web applications that analyzes JavaScript, PHP, Python, and Java code for common security issues.
 
-## Quick Start
-```bash
-# 1) Run on samples (already included)
-python -m src.secure_code_analyzer.cli scan samples --out reports/report.json --html reports/report.html --summary
+## 🚀 Features
 
-# 2) Scan your project
-python -m src.secure_code_analyzer.cli scan /path/to/code --out reports/report.json --html reports/report.html --summary
+- *Multi-Language Support*: Scan JavaScript, PHP, Python, and Java files
+- *ZIP Archive Support*: Upload and scan entire ZIP archives containing multiple files
+- *Real-time Scanning*: Fast AST-based vulnerability detection
+- *Interactive Dashboard*: Modern React frontend with filtering and visualization
+- *Comprehensive Reports*: Generate detailed JSON and HTML security reports
+- *OWASP Top 10 Coverage*: Detect vulnerabilities aligned with OWASP standards
+- *Severity Classification*: Issues categorized as Critical, High, Medium, and Low
+- *File Type Detection*: Automatic language detection and appropriate scanning
+- *Dark/Light Theme*: User-friendly interface with theme switching
 
-# 3) Fail CI when High severity issues exist
-python -m src.secure_code_analyzer.cli scan /path/to/code --fail-on HIGH
-```
+## 🛠 Technology Stack
 
-## Outputs
-- **JSON**: `reports/report.json` – machine-readable for CI dashboards.
-- **HTML**: `reports/report.html` – human-friendly report with filters.
+### Backend
 
-## Extending Rules
-Add new entries to `src/secure_code_analyzer/rules/rules.json`. Each rule supports:
-```json
+- *Python 3.8+*
+- *Flask* - Web framework
+- *Flask-CORS* - Cross-origin resource sharing
+- *AST Parsing* - Abstract syntax tree analysis for multiple languages
+- *Jinja2* - Template engine for HTML reports
+
+### Frontend
+
+- *React 18* - User interface framework
+- *Recharts* - Data visualization library
+- *Material-UI* - Component library
+- *Axios* - HTTP client for API communication
+- *JSZip* - ZIP file handling
+
+## 📋 Prerequisites
+
+- Python 3.8 or higher
+- Node.js 16 or higher
+- npm or yarn package manager
+- Git
+
+## 🚀 Quick Start
+
+### Local Development Setup
+
+
+
+1. *Backend Setup*
+
+   bash
+   # Install Python dependencies
+   pip install -r requirements.txt
+
+   # Run the Flask server
+   python src/secure_code_analyzer/cli.py --serve
+   
+
+2. *Frontend Setup*
+
+   bash
+   cd secure-code-analyzer-frontend
+
+   # Install Node.js dependencies
+   npm install
+
+   # Start the development server
+   npm start
+   
+
+3. *Access the Application*
+   - Frontend: http://localhost:3000
+   - Backend API: http://localhost:5000
+
+## 📖 Usage
+
+### CLI Mode
+
+bash
+# Scan individual files
+python src/secure_code_analyzer/cli.py file1.js file2.php
+
+# Scan directories
+python src/secure_code_analyzer/cli.py --dir ./src
+
+# Scan with custom output format
+python src/secure_code_analyzer/cli.py --files *.js --format json
+
+
+### Web Interface
+
+1. Open http://localhost:3000 in your browser
+2. Upload files or ZIP archives containing source code
+3. Click "Scan All Files" to start analysis
+4. View results in the interactive dashboard
+5. Filter by severity, OWASP category, or file type
+6. Download detailed reports in HTML or JSON format
+
+## 🔍 Supported File Types
+
+- *JavaScript*: .js, .jsx
+- *PHP*: .php
+- *Python*: .py
+- *Java*: .java
+- *Archives*: .zip (containing any of the above)
+
+## 🛡 Security Checks
+
+The analyzer detects various security vulnerabilities including:
+
+### OWASP Top 10 Coverage
+
+- *A01: Broken Access Control*
+- *A02: Cryptographic Failures*
+- *A03: Injection* (SQL, NoSQL, OS command injection)
+- *A04: Insecure Design*
+- *A05: Security Misconfiguration*
+- *A06: Vulnerable Components*
+- *A07: Authentication Failures*
+- *A08: Software Integrity Failures*
+- *A09: Logging & Monitoring Failures*
+- *A10: Server-Side Request Forgery*
+
+### Language-Specific Checks
+
+- *JavaScript*: XSS vulnerabilities, insecure eval usage, prototype pollution
+- *PHP*: SQL injection, file inclusion vulnerabilities, insecure functions
+- *Python*: Command injection, pickle deserialization, insecure imports
+- *Java*: SQL injection, XSS, insecure deserialization
+
+## 📊 Report Formats
+
+### JSON Report
+
+json
 {
-  "id": "JS-EVAL-001",
-  "language": "javascript",
-  "category": "Dangerous Function",
-  "owasp": "A03:2021-Injection",
-  "severity": "HIGH",
-  "pattern": "eval\s*\(",
-  "message": "Use of eval() can lead to code injection.",
-  "suggestion": "Avoid eval(); use JSON.parse or safe parsing/function mapping."
+  "issues": [
+    {
+      "file": "example.js",
+      "line": 15,
+      "severity": "HIGH",
+      "message": "Potential XSS vulnerability",
+      "category": "Cross-Site Scripting",
+      "owasp": "A03",
+      "cwe": "CWE-79",
+      "suggestion": "Use proper output encoding"
+    }
+  ],
+  "count": 1,
+  "files_processed": 1
 }
-```
 
-## CI Integration (GitHub Actions)
-Workflow file at `.github/workflows/scan.yml` automatically:
-- runs the analyzer on push/PR,
-- uploads the JSON/HTML reports as CI artifacts,
-- fails the build if **HIGH** issues are found.
 
-## License
-MIT
+### HTML Report
+
+- Interactive web-based report
+- Severity distribution charts
+- OWASP category breakdown
+- Detailed vulnerability descriptions
+- Code snippets with highlighted issues
+
+## 🔧 Configuration
+
+### Backend Configuration
+
+- *Port*: Configurable via PORT environment variable (default: 5000)
+- *Reports Directory*: ./reports/ (auto-created)
+- *Uploads Directory*: ./uploads/ (auto-created)
+
+### Frontend Configuration
+
+- *API Base URL*: Configurable via REACT_APP_API_URL environment variable
+- *Default*: http://localhost:5000
+
+## 🚀 Deployment
+
+### Backend Deployment (Render.com)
+
+1. Push code to GitHub
+2. Connect repository to Render.com
+3. Render automatically detects render.yaml
+4. Deploy with one click
+
+### Frontend Deployment (Vercel)
+
+1. Build the React app: npm run build
+2. Set REACT_APP_API_URL environment variable
+3. Deploy to Vercel with Git integration
+
+## 🧪 Testing
+
+### Backend Testing
+
+bash
+# Run with test files
+python src/secure_code_analyzer/cli.py test_vulnerable.js
+
+# API endpoint testing
+curl -X POST http://localhost:5000/scan \
+  -F "files=@test_file.js"
+
+
+### Frontend Testing
+
+bash
+cd secure-code-analyzer-frontend
+npm test
+
+
+## 📁 Project Structure
+
+
+My-secure-code-analyzer/
+├── src/
+│   └── secure_code_analyzer/
+│       ├── cli.py                 # Main CLI and server entry point
+│       ├── core/
+│       │   ├── scanner.py         # Core scanning logic
+│       │   ├── detectors.py       # Vulnerability detection rules
+│       │   ├── reporters.py       # Report generation
+│       │   ├── severity.py        # Severity classification
+│       │   └── utils.py           # Utility functions
+│       └── rules/                 # Language-specific rules
+├── secure-code-analyzer-frontend/
+│   ├── src/
+│   │   ├── App.js                # Main React component
+│   │   ├── config.js             # API configuration
+│   │   └── components/           # React components
+│   ├── package.json
+│   └── public/
+├── requirements.txt               # Python dependencies
+├── render.yaml                   # Render deployment config
+├── package.json                  # Root package config
+└── README.md
+
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch: git checkout -b feature/new-feature
+3. Commit changes: git commit -am 'Add new feature'
+4. Push to branch: git push origin feature/new-feature
+5. Submit a pull request
+
+
+## 🙏 Acknowledgments
+
+- OWASP for security standards and guidelines
+- Open source AST parsing libraries
+- React and Flask communities
+
+## 📞 Support
+
+For questions or issues:
+
+- Create an issue on GitHub
+- Check the documentation
+- Review existing issues for similar problems
+
+---
+
+*Happy Secure Coding! 🔒*
