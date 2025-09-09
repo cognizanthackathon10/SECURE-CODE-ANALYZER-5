@@ -43,18 +43,32 @@ def collect_files(paths):
 
 
 def run_scan(files_to_scan):
-    """Run scan on given files and return list of issues."""
+    """Run scan on given files and return list of issues (deduped, per file order)."""
     all_issues = []
     for file in files_to_scan:
         try:
             issues = scan_file(file)
             if issues:
-                print(f"\nFound {len(issues)} issues in {file}:")
+                # Deduplicate per file
+                seen = {}
                 for issue in issues:
+                    key = (issue["message"], issue["file"])
+                    if key not in seen:
+                        seen[key] = issue
+                        seen[key]["lines"] = [issue.get("line", 0)]
+                    else:
+                        seen[key]["lines"].append(issue.get("line", 0))
+                
+                deduped_issues = list(seen.values())
+
+                print(f"\nFound {len(deduped_issues)} unique issues in {file}:")
+                for issue in deduped_issues:
+                    line_info = ", ".join(map(str, sorted(issue["lines"])))
                     print(
-                        f"  [{issue['severity']}] {issue['file']}:{issue['line']} - {issue['message']}"
+                        f"  [{issue['severity']}] {issue['file']}:{line_info} - {issue['message']}"
                     )
-                all_issues.extend(issues)
+
+                all_issues.extend(deduped_issues)
             else:
                 print(f"\nNo issues found in {file}")
         except Exception as e:
@@ -68,6 +82,8 @@ def run_scan(files_to_scan):
                 }
             )
     return all_issues
+
+
 
 
 def cli_mode(args):

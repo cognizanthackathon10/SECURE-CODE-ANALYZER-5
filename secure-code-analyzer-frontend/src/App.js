@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import API_BASE_URL from "./config";
+import logo from "./logo.svg";
+import logo2 from "./logo.svg";
 
 // ... (all your React component code remains here)
 // BUT remove the Python/Flask code at the bottom
@@ -9,7 +11,6 @@ const SEVERITY_COLORS = {
   HIGH: { chip: "high", row: "severity-high", chart: "#f59e0b" },
   MEDIUM: { chip: "medium", row: "severity-medium", chart: "#06b6d4" },
   LOW: { chip: "low", row: "severity-low", chart: "#10b981" },
-  INFO: { chip: "info", row: "severity-info", chart: "#94a3b8" },
 };
 
 const FILE_EXTENSIONS = {
@@ -274,16 +275,7 @@ useEffect(() => {
 }, []);
 
 
-    // Load initial data with a small delay
-  //   const timer = setTimeout(() => {
-  //     loadInitialIssues();
-  //   }, 500);
 
-  //   return () => {
-  //     isMounted = false;
-  //     clearTimeout(timer);
-  //   };
-  // }, []); // Empty dependency array ensures this runs only once
     const loadReportFromFile = async () => {
     try {
       setIsScanning(true);
@@ -312,47 +304,59 @@ useEffect(() => {
       setIsScanning(false);
     }
   };
-//   const handleRefresh = useCallback(async () => {
-//   if (isRefreshing) return;
-//   setIsRefreshing(true);
 
-//   try {
-//     const response = await fetch(`${API_BASE_URL}/refresh`, {
-//       method: 'POST',
-//     });
-
-//     if (!response.ok) {
-//       throw new Error(`HTTP error! status: ${response.status}`);
-//     }
-
-//     // After backend refresh, load the updated report
-//     await loadReportFromFile();
-    
-//   } catch (err) {
-//     console.error('Refresh error:', err);
-//     setNotification({ message: 'Refresh failed: ' + err.message, type: 'error' });
-//   } finally {
-//     setIsRefreshing(false);
-//   }
-// }, [isRefreshing]);
  const generateVulnerabilityId = (issue) => {
-    return `${issue.file}-${issue.line}-${issue.id}-${issue.message}`.replace(/\s+/g, '-');
-  };
+  // Use category + file for deduplication (same vulnerability in same file)
+  return `${issue.category}-${issue.file}`.replace(/\s+/g, '-');
+};
 
-   const deduplicateIssues = (issuesArray) => {
-    const uniqueIssues = {};
-    const result = [];
-    
-    issuesArray.forEach(issue => {
-      const id = generateVulnerabilityId(issue);
-      if (!uniqueIssues[id]) {
-        uniqueIssues[id] = true;
-        result.push({...issue, uniqueId: id});
+const deduplicateIssues = (issuesArray) => {
+  const bundledIssues = {};
+  const result = [];
+  
+  // First pass: group issues by category and file
+  issuesArray.forEach(issue => {
+    const id = generateVulnerabilityId(issue);
+    if (!bundledIssues[id]) {
+      bundledIssues[id] = {
+        ...issue,
+        uniqueId: id,
+        bundledLines: [issue.line],
+        originalCount: 1,
+        // Store all original issues for detailed information
+        originalIssues: [issue]
+      };
+    } else {
+      // Add line to bundled lines if it's not already there
+      if (!bundledIssues[id].bundledLines.includes(issue.line)) {
+        bundledIssues[id].bundledLines.push(issue.line);
       }
-    });
+      bundledIssues[id].originalCount += 1;
+      // Keep reference to all original issues
+      bundledIssues[id].originalIssues.push(issue);
+    }
+  });
+  
+  // Convert to array and format the display
+  Object.values(bundledIssues).forEach(bundledIssue => {
+    // Sort lines numerically for better display
+    const sortedLines = bundledIssue.bundledLines.sort((a, b) => parseInt(a) - parseInt(b));
     
-    return result;
-  };
+    const formattedIssue = {
+      ...bundledIssue,
+      line: sortedLines.join(', '), // Show bundled lines in the table
+      message: bundledIssue.originalCount > 1 
+        ? `${bundledIssue.message} (${bundledIssue.originalCount} occurrences)`
+        : bundledIssue.message,
+      // Preserve all original data for expanded view
+      bundledLines: sortedLines,
+      originalIssues: bundledIssue.originalIssues
+    };
+    result.push(formattedIssue);
+  });
+  
+  return result;
+};
 
   const clearFilters = () => {
     setFilters({
@@ -370,49 +374,76 @@ useEffect(() => {
     setSelectedFiles([]);
     setNotification({ message: 'All issues cleared successfully', type: 'success' });
   };
+const filteredIssues = useMemo(() => {
+  const filtered = issues.filter(issue => {
+    if (filters.severity !== "ALL" && issue.severity !== filters.severity) {
+      return false;
+    }
 
-  const filteredIssues = useMemo(() => {
-    return issues.filter(issue => {
-      if (filters.severity !== "ALL" && issue.severity !== filters.severity) {
+    if (filters.owasp !== "ALL" && !issue.owasp.includes(filters.owasp)) {
+      return false;
+    }
+
+    if (filters.cwe !== "ALL" && !issue.cwe.includes(filters.cwe)) {
+      return false;
+    }
+
+    if (filters.fileType !== "ALL") {
+      const fileExt = issue.file.substring(issue.file.lastIndexOf('.'));
+      if (!FILE_EXTENSIONS[filters.fileType]?.includes(fileExt)) {
         return false;
       }
+    }
 
-      if (filters.owasp !== "ALL" && !issue.owasp.includes(filters.owasp)) {
+    if (filters.search) {
+      const searchTerm = filters.search.toLowerCase();
+      const searchableFields = [
+        issue.file,
+        issue.message,
+        issue.category,
+        issue.id,
+        issue.detected_by,
+        issue.owasp,
+        issue.cwe,
+        issue.suggestion
+      ].join(" ").toLowerCase();
+
+      if (!searchableFields.includes(searchTerm)) {
         return false;
       }
+    }
 
-      if (filters.cwe !== "ALL" && !issue.cwe.includes(filters.cwe)) {
-        return false;
-      }
+    return true;
+  });
 
-      if (filters.fileType !== "ALL") {
-        const fileExt = issue.file.substring(issue.file.lastIndexOf('.'));
-        if (!FILE_EXTENSIONS[filters.fileType]?.includes(fileExt)) {
-          return false;
-        }
-      }
+  // Sort by severity (CRITICAL, HIGH, MEDIUM, LOW) and then by line numbers
+  const severityOrder = {
+    CRITICAL: 1,
+    HIGH: 2,
+    MEDIUM: 3,
+    LOW: 4
+  };
 
-      if (filters.search) {
-        const searchTerm = filters.search.toLowerCase();
-        const searchableFields = [
-          issue.file,
-          issue.message,
-          issue.category,
-          issue.id,
-          issue.detected_by,
-          issue.owasp,
-          issue.cwe,
-          issue.suggestion
-        ].join(" ").toLowerCase();
-
-        if (!searchableFields.includes(searchTerm)) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-  }, [issues, filters]);
+  return filtered.sort((a, b) => {
+    const severityA = a.severity.toUpperCase();
+    const severityB = b.severity.toUpperCase();
+    
+    // First sort by severity
+    if (severityOrder[severityA] !== severityOrder[severityB]) {
+      return severityOrder[severityA] - severityOrder[severityB];
+    }
+    
+    // If same severity, sort by line numbers (handle bundled lines)
+    const linesA = a.bundledLines || [a.line];
+    const linesB = b.bundledLines || [b.line];
+    
+    // Get the minimum line number for each issue (for sorting)
+    const minLineA = Math.min(...linesA.map(line => parseInt(line) || 0));
+    const minLineB = Math.min(...linesB.map(line => parseInt(line) || 0));
+    
+    return minLineA - minLineB;
+  });
+}, [issues, filters]);
 
   const owaspCounts = useMemo(() => {
     const counts = {};
@@ -456,7 +487,6 @@ useEffect(() => {
       HIGH: 0,
       MEDIUM: 0,
       LOW: 0,
-      INFO: 0,
     };
 
     filteredIssues.forEach(issue => {
@@ -951,14 +981,14 @@ const clearAllFiles = () => {
           
 
           <div className="header-title">
-            <h1>Security Analyzer</h1>
-            <span className="file-info">
-              {selectedFiles.length > 0
-                ? `${selectedFiles.length} file${selectedFiles.length > 1 ? 's' : ''} selected`
-                : 'No files selected'
-              } <span className="scanned-badge">✓ Scanned</span>
-            </span>
-          </div>
+  <div className="logo-brand-container">
+    <img className="logo" src={logo2} alt="Secro Security Analyzer" />
+    <div className="brand-text-container">
+      <h1 className="brand-name">Secro</h1>
+      <div className="brand-tagline">Every bug has a story — we make it visible.</div>
+    </div>
+  </div>
+</div>
 
           <div className="header-actions">
              <button 
@@ -1436,53 +1466,70 @@ security-scanner scan --all --output report.html`}
               </tr>
             </thead>
             <tbody>
-               {filteredIssues.map((issue, index) => (
+  {filteredIssues.map((issue, index) => (
     <React.Fragment key={issue.uniqueId || index}>
-                  <tr className={SEVERITY_COLORS[issue.severity]?.row || ""}>
-                    <td>
-                      <button
-                      type="button"
-                        className="expand-btn"
-                        onClick={() => toggleRowExpansion(index)}
-                      >
-                        {expandedRows[index] ? "▼" : "►"}
-                      </button>
-                    </td>
-                    <td><SeverityChip severity={issue.severity} /></td>
-                    <td>{issue.file}</td>
-                    <td>{issue.line}</td>
-                    <td>{issue.category}</td>
-                    <td>{issue.id}</td>
-                    <td>{issue.message}</td>
-                    <td>{issue.detected_by}</td>
-                  </tr>
-                  {expandedRows[index] && (
-                    <tr className={`detail-row ${SEVERITY_COLORS[issue.severity]?.row || ""}`}>
-                      <td colSpan="8">
-                        <div className="issue-details">
-                          <div className="detail-section">
-                            <h4>Code Snippet:</h4>
-                            <code>{issue.snippet}</code>
-                          </div>
-                          <div className="detail-section">
-                            <h4>Suggestion:</h4>
-                            <p>{issue.suggestion}</p>
-                          </div>
-                          <div className="detail-section">
-                            <h4>OWASP:</h4>
-                            <span className="security-tag">{issue.owasp}</span>
-                          </div>
-                          <div className="detail-section">
-                            <h4>CWE:</h4>
-                            <span className="security-tag">{issue.cwe}</span>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </React.Fragment>
+      <tr className={SEVERITY_COLORS[issue.severity]?.row || ""}>
+        <td>
+          <button
+            type="button"
+            className="expand-btn"
+            onClick={() => toggleRowExpansion(index)}
+          >
+            {expandedRows[index] ? "▼" : "►"}
+          </button>
+        </td>
+        <td><SeverityChip severity={issue.severity} /></td>
+        <td>{issue.file}</td>
+        <td>{issue.line}</td> {/* This now shows bundled lines like "12, 15, 27" */}
+        <td>{issue.category}</td>
+        <td>{issue.id}</td>
+        <td>{issue.message}</td> {/* This shows count of occurrences */}
+        <td>{issue.detected_by}</td>
+      </tr>
+      {expandedRows[index] && (
+        <tr className={`detail-row ${SEVERITY_COLORS[issue.severity]?.row || ""}`}>
+          <td colSpan="8">
+            <div className="issue-details">
+              <div className="detail-section">
+                <h4>Affected Lines:</h4>
+                <p>Lines {issue.bundledLines.join(', ')}</p>
+              </div>
+              <div className="detail-section">
+                <h4>Total Occurrences:</h4>
+                <p>{issue.originalCount} occurrence{issue.originalCount !== 1 ? 's' : ''}</p>
+              </div>
+              
+              {/* Show details for each occurrence */}
+              {issue.originalIssues.map((originalIssue, occIndex) => (
+                <div key={occIndex} className="occurrence-detail">
+                  <h5>Occurrence {occIndex + 1} (Line {originalIssue.line}):</h5>
+                  <div className="detail-section">
+                    <h4>Code Snippet:</h4>
+                    <code>{originalIssue.snippet}</code>
+                  </div>
+                  <div className="detail-section">
+                    <h4>Suggestion:</h4>
+                    <p>{originalIssue.suggestion}</p>
+                  </div>
+                  {occIndex < issue.originalIssues.length - 1 && <hr className="occurrence-divider" />}
+                </div>
               ))}
-            </tbody>
+              
+              <div className="detail-section">
+                <h4>OWASP:</h4>
+                <span className="security-tag">{issue.owasp}</span>
+              </div>
+              <div className="detail-section">
+                <h4>CWE:</h4>
+                <span className="security-tag">{issue.cwe}</span>
+              </div>
+            </div>
+          </td>
+        </tr>
+      )}
+    </React.Fragment>
+  ))}
+</tbody>
           </table>
         </div>
 
@@ -1496,6 +1543,17 @@ security-scanner scan --all --output report.html`}
       </div>
 
       <style>{`
+      <!-- For Orbitron -->
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<!-- For Exo 2 -->
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<!-- For Rajdhani -->
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- For Audiowide -->
+<link href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap" rel="stylesheet">
         * {
           margin: 0;
           padding: 0;
@@ -1571,11 +1629,199 @@ security-scanner scan --all --output report.html`}
           background-color: #ef4444;
           color: white;
         }
+          .occurrence-detail {
+  margin-bottom: 16px;
+  padding: 12px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+}
+
+.occurrence-detail h5 {
+  color: #e2e8f0;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+}
+
+.occurrence-divider {
+  border: none;
+  border-top: 1px solid #334155;
+  margin: 16px 0;
+}
+
+/* Light theme adjustments */
+body.light .occurrence-detail {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+body.light .occurrence-detail h5 {
+  color: #1e293b;
+}
 
         @keyframes slideIn {
           from { transform: translateX(100%); opacity: 0; }
           to { transform: translateX(0); opacity: 1; }
         }
+          .header-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  height: 40px;
+  width: auto;
+  transition: transform 0.3s ease;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .logo {
+    height: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo {
+    height: 28px;
+  }
+  
+  .header-title {
+    gap: 8px;
+  }
+}
+  /* Add these styles to your existing CSS */
+
+.logo-brand-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.logo {
+  height: 48px;
+  width: auto;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.brand-text-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.brand-name {
+  font-family: 'Exo 2', sans-serif;
+  font-weight: 700;
+  font-weight: 700;
+  color: #3b82f6;
+  margin: 0;
+  line-height: 1;
+  letter-spacing: 0.5px;
+  position: relative;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+
+.brand-tagline {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  margin-top: 6px;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Light theme adjustments */
+body.light .brand-name {
+  color: #2563eb;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+body.light .brand-name::after {
+  background: linear-gradient(90deg, 
+    rgba(37, 99, 235, 0.8) 0%, 
+    rgba(14, 165, 233, 0.8) 50%, 
+    rgba(37, 99, 235, 0.8) 100%);
+}
+
+body.light .brand-tagline {
+  color: #64748b;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .brand-name {
+    font-size: 1.9rem;
+  }
+  
+  .brand-tagline {
+    font-size: 0.8rem;
+  }
+  
+  .logo {
+    height: 42px;
+  }
+}
+
+@media (max-width: 768px) {
+  .brand-name {
+    font-size: 1.7rem;
+  }
+  
+  .brand-tagline {
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+  }
+  
+  .logo {
+    height: 38px;
+  }
+  
+  .logo-brand-container {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo-brand-container {
+    gap: 8px;
+  }
+  
+  .brand-name {
+    font-size: 1.5rem;
+  }
+  
+  .brand-tagline {
+    font-size: 0.65rem;
+    margin-top: 4px;
+  }
+  
+  .logo {
+    height: 34px;
+  }
+}
+
+/* Hover effects for interactivity */
+.logo-brand-container:hover .logo {
+  transform: scale(1.05);
+  transition: transform 0.3s ease;
+}
+
+.logo-brand-container:hover .brand-name {
+  color: #06b6d4;
+  transition: color 0.3s ease;
+}
+
+body.light .logo-brand-container:hover .brand-name {
+  color: #0ea5e9;
+}
 
         /* Sidebar */
         .sidebar {
