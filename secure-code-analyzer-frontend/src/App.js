@@ -4,8 +4,7 @@ import API_BASE_URL from "./config";
 import logo from "./logo.svg";
 import logo2 from "./logo.svg";
 
-// ... (all your React component code remains here)
-// BUT remove the Python/Flask code at the bottom
+
 const SEVERITY_COLORS = {
   CRITICAL: { chip: "critical", row: "severity-critical", chart: "#ef4444" },
   HIGH: { chip: "high", row: "severity-high", chart: "#f59e0b" },
@@ -969,11 +968,7 @@ const clearAllFiles = () => {
           </div>
         </div>
       )}
-      {/* Add this somewhere in your JSX */}
-
-      {/* Add this somewhere in your JSX for debugging */}
-
-
+     
       {/* Main Content */}
       <div className="main-content">
         {/* Header */}
@@ -1044,11 +1039,7 @@ security-scanner scan --all --output report.html`}
         <div className="dashboard-cards">
           {/* Upload Card */}
           {/* Upload Card */}
-{/* Upload Card */}
-{/* Upload Card */}
-{/* Upload Card */}
-{/* Upload Card */}
-{/* Upload Card */}
+
 <div className="dashboard-card upload-card">
   <div className="card-header">
     <h2>Upload Files</h2>
